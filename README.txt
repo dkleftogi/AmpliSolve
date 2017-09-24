@@ -1,11 +1,15 @@
 AmpliSolve: detecting somatic single nucleotide variants and copy number aberrations from Ion Torrent, amplicon-based sequencing data
-========================================================================================================================================================
+====================================================================================================
 
-AmpliSolve, is a new tool to identify somatic single nucleotide variants (SNVs) and copy number (CN) aberrations in matched tumour-normal samples from targeted deep sequencing experiments. AmpliSolve has been designed specifically for amplicon-based libraries sequenced with the Ion Torrent platform but it can be equally applied to other platforms (not tested yet). It relies on a population of normal samples to infer a position specific sequencing error (noise) and to estimate the expected coverage at copy neutral regions. We tested AmpliSolve on circulating tumor DNA (ctDNA) samples sequenced using a custom amplicon (AmpliSeq) panel. Our results show that AmpliSolve discriminates effectively SNVs from background noise even at low allele frequency and estimates accurately CN aberrations.       
+AmpliSolve, is a new tool to identify somatic single nucleotide variants (SNVs) and copy number (CN) aberrations in matched tumour-normal samples from targeted deep sequencing experiments. 
+AmpliSolve has been designed specifically for amplicon-based libraries sequenced with the Ion Torrent platform but it can be equally applied to other platforms (not tested yet). 
+It relies on a population of normal samples to infer a position specific sequencing error (noise) and to estimate the expected coverage at copy neutral regions. 
+We tested AmpliSolve on circulating tumor DNA (ctDNA) samples sequenced using a custom amplicon (AmpliSeq) panel. 
+Our results show that AmpliSolve discriminates effectively SNVs from background noise even at low allele frequency and estimates accurately CN aberrations.       
 
 
 Dependencies and System Requirements
-========================================================================================================================================================
+====================================================================================================
 
 AmpliSolve dependes on the following:
 
@@ -28,7 +32,7 @@ More details about AmpliSolve, and toy execution examples will be availalbe soon
 
 
 Compilation
-========================================================================================================================================================
+====================================================================================================
 
 This is a C++ program, thus you need the C++ compiler to be installed in your computer.
 
@@ -65,7 +69,7 @@ and if the compilation is successful you will find the following binaries:
 computeCounts, AmpliSolvePreProVC, AmpliSolveVC, AmpliSolveCN and AmpliSolvePreProCN
 
 Pre-compiled Binaries
-========================================================================================================================================================
+====================================================================================================
 
 We provide pre-compiled binaries of all programs generated on MacOSX (El Capitan 10.11.5) and Centos7 (7.1.1503) 
 
