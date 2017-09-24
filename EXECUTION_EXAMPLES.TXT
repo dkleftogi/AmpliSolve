@@ -1,0 +1,8 @@
+How to run AmpliSolve ?? 
+====================================================================================================
+
+Here we provide execution examples for all execution modes provided by AmpliSolve. To make the examples more
+interactive we also provide toy data (not actual patient's data) that you can find in different folders. The
+folder names are self explanatory. If, for any reason, you face problems running AmpliSolve please contact the 
+developer dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
+
