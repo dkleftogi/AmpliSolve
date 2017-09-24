@@ -74,9 +74,16 @@ cc -o AmpliSolvePreProCN AmpliSolvePreProCN.cpp -std=c++0x -lstdc++
 and if the compilation is successful you will find the following binaries:
 computeCounts, AmpliSolvePreProVC, AmpliSolveVC, AmpliSolveCN and AmpliSolvePreProCN
 
+If you face any problem with the dependencies, versions or other compilation issues 
+please contact the developer at dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
+
+
+
 Pre-compiled Binaries
 ====================================================================================================
 
-We provide pre-compiled binaries of all programs generated on MacOSX (El Capitan 10.11.5) and Centos7 (7.1.1503) 
+We provide pre-compiled binaries of all programs generated on MacOSX (El Capitan 10.11.5) and Centos7 (7.1.1503).
+
+Althought is not reccomended to provided pre-compiled binaries this might help some users.  
 
 

@@ -1,8 +1,59 @@
 How to run AmpliSolve ?? 
 ====================================================================================================
 
-Here we provide execution examples for all execution modes provided by AmpliSolve. To make the examples more
-interactive we also provide toy data (not actual patient's data) that you can find in different folders. The
-folder names are self explanatory. If, for any reason, you face problems running AmpliSolve please contact the 
-developer dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
+Here we provide execution examples for all execution modes provided by AmpliSolve. 
+
+To make the examples more interactive we also provide toy data (not actual patient's data) that you can find in different folders. 
+
+The folder names are self explanatory. 
+
+If, for any reason, you face problems running AmpliSolve please contact the developer dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
+
+
+
+AmplisolvePreProCN
+====================================================================================================
+AmplisolvePreProCN is a pre-processing program for estimating CN aberrations. It uses a population of normal 
+samples in the bam format, to estimate the baseline coverate distribution for copy neutral regions. To run this 
+program you execute ./AmpliSolvePreProCN
+
+Before running this program make sure that samtools and bedtools are installed and present in your PATH.
+
+Once you are sure that samtools and bedtools are working fine, you will need a couple of arguments that are described below:
+
+1. panel_design --> This is a bed format that contains the amplicons. We provide a sample panel-design at folder myBED.
+The file example_panel_design.bed contains the chromosome and the start and end positions of the amplicons plus some 
+additional informations.
+
+2. germline_dir --> Since AmpliSolve is a population based method it relies on a number of normal samples (usually germline 
+from saliva). Give the full path of the directory that contains all the bam files you have. The files have to be sorted and 
+indexed with samtools. The current version of the program is case sensitive so please name the files with the extenstion .bam 
+and not .BAM
+In folder Germline_samples we provide examples for running the program.
+
+3. Q --> You need to specify a minimum mapping quality similar to the samtools Q argument. 
+
+4. chromosome  --> The program estimates the CN aberrations per chromosome. Please give the chromosome names correctly, because 
+they have to match the chromosome names in the panel_design and in the bam file of the normals.
+
+5. output --> The program generates a folder named with name "output" to store the main results and some other intermediate file 
+that are produced. Give the full path of the directory you want to generate.
+
+Now, we give an execution example based on the provided data.
+
+Assuming that we have compiled all binaries in the source_coded folder. From this folder we can directly run the following command:
+
+./AmpliSolvePreProCN panel_design=/Users/Dimitrios/Programs/AmpliSolve_Execution_Example/myBED/example_panel_design.bed germline_dir=/Users/Dimitrios/Programs/AmpliSolve_Execution_ExampleAmpliSolve_Execution_Example/Germline_samples Q=20 chromosome=chrX output=/Users/Dimitrios/Programs/AmpliSolve_Execution_Example/AmpliSolveTesting
+
+Give the arguments with this order (and only) and always put "=" after the argument name. 
+
+If you dont specify the correct number of arguments the program will terminate. Under this execution the program will generate folder /Users/Dimitrios/Programs/AmpliSolve_Execution_Example/AmpliSolveTesting
+to store the results. 
+
+The results for this execution should be chrX_germline_ratios.txt and a sub-folder named chrX_PreProCN_interm_files.
+
+
+
+
+
 
