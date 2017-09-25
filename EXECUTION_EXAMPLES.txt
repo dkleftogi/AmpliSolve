@@ -1,59 +1,411 @@
 How to run AmpliSolve ?? 
 ====================================================================================================
 
-Here we provide execution examples for all execution modes provided by AmpliSolve. 
+Here we provide examples for the execution modes provided by AmpliSolve. 
 
-To make the examples more interactive we also provide toy data (not actual patient's data) that you can find in different folders. 
+To make the examples more interactive we also provide toy data (not actual patient's data but sampled reads) that you can find in different folders (self explanatory folder names).
 
-The folder names are self explanatory. 
+We also provide the samtools, bedtools and boost library distributions we used during the development of the software.
 
-If, for any reason, you face problems running AmpliSolve please contact the developer dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
+Lets us run an example. 
 
+First you need to download the AmpliSolve package. 
+
+We unzip it and we can see all files including the toy data we provide.
+
+Next, we need to prepare the environment and resolve the program’s dependencies. 
+
+a) If samtools is not installed in your system, please download it and install it. 
+
+We recommend version 1.3.1 (provided) since AmpliSolve has been tested with this particular samtools version. 
+
+If samtools is already installed in your system make sure that it is included in your PATH. 
+
+One simple test is to type samtools from an arbitrary location. If the command is recognized then we are OK to continue.
+
+b) If bedtools in not installed in your system, download it and install it. 
+
+We recommend version 2.17.0 (provided) since AmpliSolve has been tested with this bedtools version.
+
+If bedtools is already installed in your system make sure that it is included in your PATH. Simply type bedtools from an arbitrary location. If the command is recognized then we are OK to continue.
+
+c) Download the boost libraries (provided), unzip them and remember the full path because we will need it to “make” AmpliSolve binaries.
+
+At this point our environment is ready and we continue with AmpliSolve compilation.
+
+Type: 
+
+cd source_codes
+
+From folder source_codes we can see the two makefiles for mac and linux systems. 
+
+Assuming we have a mac system. 
+
+Type: 
+
+make -f Makefile.macosx BOOST_FLAG=/Users/Dimitrios/boost_1_61_0
+
+where folder /Users/Dimitrios/boost_1_61_0 is the path we have unziped the boost libraries.
+
+This make file should generate binaries: 
+
+computeCounts, AmpliSolvePreProVC, AmpliSolveVC, AmpliSolveCN and AmpliSolvePreProCN
+
+Below we will present how to use the programs, with simple and step-by-step examples.
+
+If, for any reason, there are problems during the system setup or compilation issues please contact the developer dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
 
 
 AmplisolvePreProCN
 ====================================================================================================
-AmplisolvePreProCN is a pre-processing program for estimating CN aberrations. It uses a population of normal 
-samples in the bam format, to estimate the baseline coverate distribution for copy neutral regions. To run this 
-program you execute ./AmpliSolvePreProCN
+AmplisolvePreProCN is a pre-processing program for estimating CN aberrations. 
 
-Before running this program make sure that samtools and bedtools are installed and present in your PATH.
+It uses a population of normal samples in the bam format, to estimate the baseline coverage distribution for copy neutral regions. 
 
-Once you are sure that samtools and bedtools are working fine, you will need a couple of arguments that are described below:
+To check the usage type: 
 
-1. panel_design --> This is a bed format that contains the amplicons. We provide a sample panel-design at folder myBED.
-The file example_panel_design.bed contains the chromosome and the start and end positions of the amplicons plus some 
-additional informations.
+./AmpliSolvePreProCN
 
-2. germline_dir --> Since AmpliSolve is a population based method it relies on a number of normal samples (usually germline 
-from saliva). Give the full path of the directory that contains all the bam files you have. The files have to be sorted and 
-indexed with samtools. The current version of the program is case sensitive so please name the files with the extenstion .bam 
-and not .BAM
-In folder Germline_samples we provide examples for running the program.
+Before running AmpliSolvePreProCN we need to make sure that samtools and bedtools are installed and included in your PATH as described before.
 
-3. Q --> You need to specify a minimum mapping quality similar to the samtools Q argument. 
+Once you are sure that samtools and bedtools are working fine, we will need specific input arguments that are described below:
 
-4. chromosome  --> The program estimates the CN aberrations per chromosome. Please give the chromosome names correctly, because 
-they have to match the chromosome names in the panel_design and in the bam file of the normals.
+1.	panel_design --> This is a bed-like file that contains the amplicon coordinates. 
+We provide a sample design at folder myBED.
 
-5. output --> The program generates a folder named with name "output" to store the main results and some other intermediate file 
-that are produced. Give the full path of the directory you want to generate.
+The file example_panel_design.bed contains the chromosome and start and end positions of some amplicons in chrX plus additional information.
 
-Now, we give an execution example based on the provided data.
+2. germline_dir --> Since AmpliSolve is a population based method it relies on a number of normal samples (usually germline from saliva). 
 
-Assuming that we have compiled all binaries in the source_coded folder. From this folder we can directly run the following command:
+We better give the full path of the directory that contains all normal bam files we have. 
+The bam files have to be sorted and indexed with samtools. 
 
-./AmpliSolvePreProCN panel_design=/Users/Dimitrios/Programs/AmpliSolve_Execution_Example/myBED/example_panel_design.bed germline_dir=/Users/Dimitrios/Programs/AmpliSolve_Execution_ExampleAmpliSolve_Execution_Example/Germline_samples Q=20 chromosome=chrX output=/Users/Dimitrios/Programs/AmpliSolve_Execution_Example/AmpliSolveTesting
+The current version of the program is case sensitive so the extensions must be .bam and not .BAM.
 
-Give the arguments with this order (and only) and always put "=" after the argument name. 
+In folder Germline_samples we provide examples for running this program.
 
-If you dont specify the correct number of arguments the program will terminate. Under this execution the program will generate folder /Users/Dimitrios/Programs/AmpliSolve_Execution_Example/AmpliSolveTesting
+3. Q --> We need to specify minimum mapping quality similar to the samtools Q argument. 
+
+4. chromosome  --> The program estimates the CN aberrations per chromosome. 
+
+Please give the chromosome names correctly, because they have to match the chromosome names in the panel design and  naming in the normal bam files.
+ 
+5. output --> The program generates folder named "output" to store the main results and some other intermediate files produced. 
+
+We better give the full path of the directory we want to generate.
+
+Below there is an execution example based on the provided data.
+
+Assuming that we have compiled all binaries in the source_codes folder. 
+
+From this folder we can directly run the following command:
+
+./AmpliSolvePreProCN panel_design=/Users/Dimitrios/AmpliSolve_Execution_Example/myBED/example_panel_design.bed germline_dir=/Users/Dimitrios/AmpliSolve_Execution_ExampleAmpliSolve_Execution_Example/Germline_samples Q=20 chromosome=chrX output=/Users/Dimitrios/AmpliSolve_Execution_Example/AmpliSolveTesting
+
+This command says that we will use myBED/example_panel_design.bed as input panel design, and as baseline population of normal we will use all
+bam files stores under folder Germline_samples. 
+
+In this toy example we use 5 samples , but we recommend to use more than 10, ideally 30-50 samples.
+
+For quality we set Q equals 20 (Ion Torrent) and we are interested in chromosome X. Notice that chrX is the correct symbol and not X. 
+
+We must give the arguments in this order (and only) and always put "=" after the argument name. This is an internal way of parsing the arguments, that is simple and understandable for the users.  
+
+If we do not specify the correct number of arguments the program will terminate. 
+
+This execution example will generate folder /Users/Dimitrios/AmpliSolve_Execution_Example/AmpliSolveTesting
 to store the results. 
 
-The results for this execution should be chrX_germline_ratios.txt and a sub-folder named chrX_PreProCN_interm_files.
+If execution is successful, the results should be chrX_germline_ratios.txt and a sub-folder named chrX_PreProCN_interm_files. The subfolder can be deleted. Although it contains some extra files that can be useful. 
+
+Output file named chrX_germline_ratios.txt is tab-limited and contains all the ratios per amplicon in the chromosome of interest we selected. This information can be visualized as a boxplot and serve as baseline for downstream analysis. AmpliSolve does not offer visualization capabilities. 
+
+AmplisolveCN
+====================================================================================================
+AmplisolveCN is a program for estimating CN aberrations per chromosome given as input a pair of tumour-normal bam files. 
+
+In fact this program complements the program AmplisolvePreProCN for cases where sufficient number of normal files is not available. 
+
+To run this program and see its usage type: 
+
+./AmpliSolveCN
+
+Before running AmpliSolveCN we need to make sure that samtools and bedtools are installed and included in the PATH as described before.
+
+We need a couple of arguments that are described below:
+
+1.	panel_design --> This is a bed-like file that contains the amplicon coordinates. 
+We provide a sample design at folder myBED.
+
+The file example_panel_design.bed contains the chromosome and start and end positions of some amplicons in chrX plus additional information.
 
 
+2.	tumour_bam  --> We need a tumour file in the bam format. 
+
+The file has to be sorted and indexed using samtools. 
+
+The current implementation is case sensitive and the files should be named with extension .bam and not .BAM
+
+In folder Plasma_samples we provide two tumour toy samples for testing the program.
+
+3.	germline_bam  --> We need a germline (normal) file in the bam format that matches the tumour file described before.
+ 
+If this is not available we type germline_bam=not_available and the program will handle this case accordingly.
+
+The normal file has to be sorted and indexed using samtools. 
+
+The current implementation is case sensitive and the files should be named with extension .bam and not .BAM
+
+In folder Germline_samples we provide toy germline samples for testing the program.
+
+3. Q --> We need to specify minimum mapping quality similar to the samtools Q argument. 
+
+4. chromosome  --> The program estimates the CN aberrations per chromosome. 
+
+5. output --> The program generates a folder named "output" to store the main results and some other intermediate files.
+ 
+We better give the full path of the directories.
+
+Below we provide an execution example based on the toy data.
+
+Assuming that we have compiled all binaries in the source_codes folder. 
+
+From this folder we can directly run the following command:
+
+./AmpliSolveCN panel_design=/Users/Dimitrios/AmpliSolve_Execution_Example/myBED/example_panel_design.bed tumour_bam=/Users/Dimitrios/AmpliSolve_Execution_Example/Plasma_samples/Plasma_S1.bam germline_bam=/Users/Dimitrios/AmpliSolve_Execution_Example/Germline_samples/Germline_S1.bam Q=20 chromosome=chrX output_dir=/Users/Dimitrios/AmpliSolveTesting
+
+This command uses myBED/example_panel_design.bed as input panel design. 
+
+We use tumour sample named Plasma_S1.bam with its matched normal file named Germline_S1.bam.
+
+For quality we set Q equals 20 (Ion Torrent) and we are interested in chromosome X. 
+
+Notice that chrX is the correct symbol and not X. 
+
+Users, have to give the arguments with this order (and only) and always put "=" after the argument name.
+
+This execution example will generate folder /Users/Dimitrios/AmpliSolve_Execution_Example/AmpliSolveTesting
+to store the results. 
+
+If execution is sucessful, the program will return a folder named chrX_CN_interm_files. 
+
+It will also return files named Plasma_S1_chrX_CNstatus.txt and Plasma_S1_chrX_ratios.txt
+
+The former contains the estimation of CN status per amplicon plus the average estimation across the chromosome. 
+
+The latter file has the same format with file chrX_germline_ratios.txt we produced by program AmplisolvePreProCN. 
+
+Actually, the results of Plasma_S1_chrX_ratios.txt are directly comparable to the 
+results presented in chrX_germline_ratios.txt.  We can use this information to inspect visually CN aberrations at the amplicon-level resolution. 
+
+computeCounts
+====================================================================================================
+This is a utility program provided together with AmpliSolve. 
+
+Actually this program is a simplified version of ASEQ https://demichelislab.unitn.it/doku.php?id=public:aseq that we use for estimating allele-specific read counts in programs AmplisolvePreProVC and AmplisolveVC.
+
+We provide the program as a separate execution binary because we offer an alternative execution procedure for AmpliSolvePreProVC. 
+
+This alternative execution procedure is suitable for big cohorts of normal samples and it is currently under developement. 
+
+The basic idea, is to estimate all read counts per sample in a highly parallel system (e.g., cluster) and then run a modified version of AmplisolvePreProVC to read directly the read counts in order to minimize the overall running time. 
+
+More details about this implementation will be available online soon. 
+
+Programs AmpliSolvePreProVC and AmplisolveVC use internally computeCounts program. 
+
+For this reason all binaries have to be placed in the same directory.
+
+To check computeCounts usage type:
+
+./computeCounts
+
+Briefly, computeCounts takes as input a VCF-like file that contains all genomic position we are interested in computing the read counts per allele. 
+
+It also takes a number of extra arguments such as number of threads, minimum base quality, minimum read quality, minimum depth coverage similar to the ASEQ original implementation. 
+
+The results are stored in a user-specified directory with the extension .PILEUP.ASEQ similar to the original program.
+
+AmplisolvePreProVC
+====================================================================================================
+AmplisolvePreProVC is a pre-processing program for estimating the noise level per position in the panel following the statistical method described in the manuscript. 
+
+AmplisolvePreProVC uses a population of normal samples in the bam format, to estimate the noise levels as well as infer additional information that are necessary for the variant calling procedure implemented under the program AmpliSolveVC. 
+
+The actual variant calling step, AmpliSolveVC (see next), requires as input file the output of AmplisolvePreProVC, thus is necessary to run this program first. 
+
+With many samples, it might take some time to estimate the noise levels. 
+
+However, this process that takes place only once, and thus the same noise levels can be used multiple times with AmpliSolveVC. 
+
+The main bottleneck in the noise estimation is the estimation of allele-specific read counts performed by computeCounts. 
+
+We are working on a new version of the program that reduces dramatically the execution time in high parallel systems (will be available soon).
+
+ To see the usage we type:  
+
+ ./AmplisolvePreProVC
+
+Before running the program we need to make sure that samtools and bedtools are installed and included in the PATH. 
+
+We need also to make sure that computeCounts is in the same folder.
+
+We need the following list of arguments:
+
+1. panel_design --> This is a bed-like file that contains the amplicon coordinates. 
+We provide a sample design at folder myBED.
+
+The file example_panel_design.bed contains the chromosome and start and end positions of some amplicons in chrX plus additional information.
+
+2.	reference_genome --> The reference genome used for pre-processing the bam files. 
+
+This file is not part of the toy samples we provide due to storage restrictions.
+ 
+However, reference genome can be downloaded from UCSC or elsewhere.  
+
+The reference genome has to be in the fasta format and it has to be indexed. 
+
+To run the examples described here make sure that the chromosomes in the reference genome are named chr1, chr2, chre3 or chrX, and not 1,2,3, or X.
+
+3. germline_dir --> Since AmpliSolvePreProVC is a population based method it relies on a number of normal samples (usually germline from saliva). 
+
+We better give the full path of the directory that contains all the bam files 
+
+The files have to be sorted and indexed with samtools. 
+
+The current version of the program is case sensitive so all bam files need the extenstion .bam not not .BAM
+
+In folder Germline_samples we provide germline examples 
+
+If germline files are not available we type germline_dir=not_available and the 
+program will run under default setting. 
+
+It actually produces the output we need to call variants but the noise levels for all positions are fixed 0.01
+
+4. threads --> Number of threads for running computeCounts program.
+
+5. mbq --> Minimum base quality required for or running computeCounts Program.
+
+6. mrq --> Minimum read quality required for or running computeCounts program.
+
+7. mdc --> Minimum depth coverage required for or running computeCounts program.
+
+8. output --> The program generates a folder named "output" to store the main results and some other intermediate files.
+
+We better give the full path of the directory you want to generate.
+
+Now, we give an execution example based on our toy data.
+
+We don’t provide reference geneome so we need to download assembly hg19 reference genome that can be found find elsewhere.
+
+Assuming that we have compiled all binaries in the source_codes folder. 
+
+From this folder we can directly run the following command:
+
+./AmpliSolvePreProVC panel_design=/Users/Dimitrios/AmpliSolve_Execution_Example/myBED/example_panel_design.bed reference_genome=/Users/Dimitrios/AmpliSolve_Execution_Example/Reference_genome/hg19_chr.fa germline_dir=/Users/Dimitrios/AmpliSolve_Execution_Example/Germline_samples threads=4 mbq=20 mrq=20 mdc=20 output_dir=/Users/Dimitrios/AmpliSolveTesting
+
+This command says that we will use myBED/example_panel_design.bed as input panel design. 
+
+As baseline population of normal samples to estimate the noise levels, we use all
+bam files stores in folder Germline_samples. 
+
+In this toy example we use 5 samples, but we recommend to use more than 10, ideally 30-50 samples. 
+
+To running computeCounts we use internally 4 threads and we set up quality criteria 20-20-20 which is the default for Ion Torrent. 
+
+The reference genome we use is assembly hg19 with all chomosome names starting with chr. 
+
+Users, have to give the arguments with this order (and only) and always put "=" after the argument name.   
+
+If you dont specify the correct number of arguments the program will terminate. 
+
+This execution example will generate folder /Users/Dimitrios/AmpliSolve_Execution_Example/AmpliSolveTesting
+to store the results. 
+
+If execution is successful, the program will generate subfolders PreProVC_interm_files and Germline_Read_Counts_ASEQ to store some intermediate files and the read counts for all normal files respectively.
 
 
+The main output of this program is file positionSpecificNoise.txt
 
+This file contains the noise level per genomic position in the panel and is the necessary input to run program AmplisolveVC (see below).
+
+AmplisolveVC
+====================================================================================================
+AmplisolveVC is the main program for identifying somatic single nucleotide variants. 
+
+It implements a Poisson-based statistical framework described in the manuscript. 
+
+The program takes as input tumour samples in the bam format, and their matched germline samples. 
+
+However, the germline sample is not necessary for execution. 
+
+The only file that is necessary is the output of the pre-processing program AmplisolvePreProVC that contains position-specific noise levels. 
+
+To see the usage of this program type: 
+
+./AmplisolveVC
+
+
+Before running AmplisolveVC we need to make sure that samtools and bedtools are installed and present in our PATH as described before.
+
+The program executes internally computeCounts that has to be present in the same folder. 
+
+Once the dependencies have been resolved, we need the following arguments:
+
+1.	preprocessing_file --> This file is produced by AmplisolvePreProVC. 
+
+See the previous subsections about AmplisolvePreProVC execution.
+
+2.	tumour_bam  -->  We need a tumour file in the bam format. 
+
+The file has to be sorted and indexed using samtools. 
+
+In folder Plasma_samples we provide two tumour toy samples for testing the program.
+
+3. germline_bam --> We need a germline (normal) file in the bam format that matches the tumour file. 
+
+If matched germline for our tumour sample is not available we type germline_bam=not_available and the program will handle this case accordingly. 
+
+The germline file has to be sorted and indexed using samtools. 
+
+
+In folder Germline_samples we provide five germline toy samples. 
+ 
+4. threads --> Number of threads for running computeCounts program.
+
+5. mbq --> Minimum base quality required for or running computeCounts program.
+
+6. mrq --> Minimum read quality required for or running computeCounts program.
+
+7. mdc --> Minimum depth coverage required for or running computeCounts program.
+
+8. output --> The program generates folder named "output" to store the main results and some other intermediate files.
+
+We better give the full path of the directory we want to generate.
+
+Below, we give an execution example based on the provided data.
+
+Assuming that we have compiled all binaries in the source_codes folder. 
+
+From this folder we can directly run the following command:
+
+./AmpliSolveVC preprocessing_file=/Users/Dimitrios/AmpliSolveTesting/positionSpecificNoise.txt tumour_bam=/Users/Dimitrios/AmpliSolveTesting/Plasma_samples/Plasma_S2.bam germline_bam=/Users/Dimitrios/AmpliSolveTesting/Germline_samples/Germline_S2.bam threads=4 mbq=20 mrq=20 mdc=20 output_dir=/Users/dkleftog/Desktop/AmpliSolveTesting
+
+This command says that we will use the noise levels described in the file positionSpecificNoise.txt as input. 
+
+In this toy example we scan the tumour Plasma_S2.bam sample, with matched germline sample Germline_S2.bam.
+
+For executing computeCounts we use 4 threads and we set up quality 20-20-20 which is the default for Ion Torrent. 
+
+Similar to the previous cases all results will be stored at directory /Users/dkleftog/Desktop/AmpliSolveTesting.
+
+Users, have to give the arguments with this order (and only) and always put "=" after the argument name.   
+
+If we don’t specify the correct number of arguments the program will terminate. 
+
+The execution will generate subfolders named VC_interm_files and Read_Counts_ASEQ. 
+
+The former contains some intermediate files produced during the execution whereas the latter stores the allele-counts produced by coumputeCounts program.
+
+The output of the program will be a file in the VCF format (Plasma_S2.vcf) with all variants that passed our filtering criteria. The program also returns a tab-limited file named AmpliSolve_VC_Summary_Plasma_S2.txt that contains more info about the variant calls we made. 
 
