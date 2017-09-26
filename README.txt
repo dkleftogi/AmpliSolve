@@ -27,7 +27,9 @@ Make sure that both are intalled and also included in the PATH of your system. I
 
 During the program development and testing Samtools v1.3.1 and bedtools v2.17.9 were used.
    
-3. ASEQ https://demichelislab.unitn.it/doku.php?id=public:aseq
+3. ASEQ software downloaded from https://demichelislab.unitn.it/doku.php?id=public:aseq
+
+This has been integrated into AmpliSolve's source codes. 
 
 4. Boost libraries.
     
@@ -74,6 +76,10 @@ cc -o AmpliSolvePreProCN AmpliSolvePreProCN.cpp -std=c++0x -lstdc++
 and if the compilation is successful you will find the following binaries:
 computeCounts, AmpliSolvePreProVC, AmpliSolveVC, AmpliSolveCN and AmpliSolvePreProCN
 
+To make the program accessible from any location in the system you need to include all binaries created in your PATH.
+
+This can be done easily with a command like PATH=$PATH:/write/your/dir/to/AmpliSolve/source_codes
+
 If you face any problem with the dependencies, versions or other compilation issues 
 please contact the developer at dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
 
@@ -82,8 +88,7 @@ please contact the developer at dimitrios DOT kleftogiannis AT icr DOT ac DOT uk
 Pre-compiled Binaries
 ====================================================================================================
 
-We provide pre-compiled binaries of all programs generated on MacOSX (El Capitan 10.11.5) and Centos7 (7.1.1503).
+We provide pre-compiled binaries of all AmpliSolve programs generated for MacOSX (El Capitan 10.11.5) and Centos7 (7.1.1503).
 
-Althought is not reccomended to provided pre-compiled binaries this might help some users.  
-
+Please contact directly Dimitrios at dimitrios DOT kleftogiannis AT icr DOT ac DOT uk
 

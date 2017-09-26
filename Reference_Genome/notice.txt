@@ -1,0 +1,7 @@
+We cannot provide reference genome due to storage restrictions.
+
+However, you can find reference genomes elsewhere. Make sure that your chromosomome naming, in the 
+reference genome, the panel design and your bam files is consistent. 
+
+This is a typical mistake we all of us do...
+
