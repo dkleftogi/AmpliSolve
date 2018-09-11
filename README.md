@@ -1,6 +1,6 @@
 # AmpliSolve
 
-AmpliSolve, is a new bioinfrmatics tool for precise error estimation and variant calling in targeted deep sequencing data. AmpliSolve has been designed specifically for amplicon-based libraries sequenced with the Ion AmpliSeq technology, and it can in principle be applied to other platforms (but not tested yet). AmpliSolve uses a population of normal samples as a training set to infer a position specific, nucleotide specific and strand specific background noise levels, and deploys a Poisson-based statistical model to identify single nucleotide variants. We have tested AmpliSolve on circulating tumor DNA (ctDNA) samples sequenced using a custom AmpliSeq panel. 
+AmpliSolve, is a new bioinfrmatics tool for precise error estimation and variant calling in targeted deep sequencing data. AmpliSolve has been designed specifically for amplicon-based libraries sequenced with the Ion AmpliSeq technology, and it can in principle be applied to other platforms. AmpliSolve uses a population of normal samples as a training set to infer position specific, nucleotide specific and strand specific background noise levels, and deploys a Poisson-based statistical model to identify single nucleotide variants. We have tested AmpliSolve on circulating tumor DNA (ctDNA) samples sequenced using a custom AmpliSeq panel. 
 
 
 ## Dependencies and System Requirements
@@ -25,7 +25,7 @@ During the program development we used Samtools v1.3.1 and bedtools v2.17.9 (bot
 ```
 3. ASEQ software downloaded from https://demichelislab.unitn.it/doku.php?id=public:aseq
 ```
-We use ASEQ to generate read count files ending with .PILEUP.ASEQ, from the original BAM files. AmpliSolve does not work on the actual BAM files, and thus it requires to pre-process the input BAMs and generate the input in the appropriate format. Examples are provided below.  
+We use ASEQ to generate read count files ending with .PILEUP.ASEQ, from the original BAM files. AmpliSolve does not work on the actual BAM files, and thus it requires to pre-process the input BAMs and generate the input in the appropriate format. Examples are provided at Execution_examples.md  
 
 ```
 4. Boost libraries from http://www.boost.org/
@@ -71,10 +71,16 @@ To make the program accessible from any location in the system you need to inclu
 PATH=$PATH:/write/your/dir/to/AmpliSolve/source_codes
 ```
 
-## Contact me
+## Licence
+
+This project is licenced under the the Educational Community License, Version 2.0. You may not use this file except in compliance with the License. You may obtain a copy of the License at https://opensource.org/licenses/ECL-2.0
+
+## Contact
 
 If you face any compilation problems, issues with dependencies, versions and so on, or you found bugs please contact me at dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
 
-I would also appreciate hearing about how you used this code, improvements that you have made to it. 
+We would also appreciate hearing about how you used this code, improvements that you have made to it. 
+
+
 
 
