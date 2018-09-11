@@ -55,7 +55,7 @@ Once we have all .PILEUP.ASEQ files for normal and tumour files stored in two se
 
 ### Run AmpliSolveErrorEstimation
 
-Once the input data are ready, we need to estimate the error levels per position, nucleotide and strand. This is performed using program AmpliSolveErrorEstimation. 
+Once the normal input data are ready, we need to estimate the error levels per position, nucleotide and strand. This is performed using program AmpliSolveErrorEstimation. 
 
 Type:
 
@@ -85,6 +85,34 @@ germline_dir=NORMAL_ASEQ_DIR
 ./AmpliSolveErrorEstimation panel_design=AmpliSeq_30genes_Designed-1.bed reference_genome=/Users/Reference_genome/hg19_chr.fa germline_dir=NORMAL_ASEQ_DIR C_value=0.002 output_dir=FirstExecution
 ```
 
+Execution of AmpliSolveErrorEstimation will produce a flat file that contains the error levels per position in the panel design
+
+One example is the following:
+```
+chrom	position	reference	duplicate	Thres_A	Thres_C	Thres_G	Thres_T	Germ_Max_A	Germ_Max_C	Germ_Max_G	Germ_Max_T
+chr8	23437012	T	NO	0.002000_0.002000	0.002000_0.002000	0.002000_0.002000	-1_-1	0	0	0	-
+chr8	23437013	A	NO	-1_-1	0.002000_0.002000	0.002167_0.002000	0.002000_0.002000	-	0	0.00170648	0
+chr8	23437014	T	NO	0.002000_0.002000	0.003513_0.002000	0.002000_0.002000	-1_-1	0	0.00172117	0	-
+chr8	23437015	C	NO	0.002339_0.002000	-1_-1	0.002169_0.002000	0.002000_0.002000	0.00178253	-	0.000799361	0
+chr8	23437016	A	NO	-1_-1	0.002000_0.002000	0.002543_0.003835	0.002000_0.002000	-	0	0.00338409	0
+chr8	23437017	A	NO	-1_-1	0.002000_0.002000	0.003193_0.002319	0.002000_0.002000	-	0	0.00169779	0
+chr8	23437018	G	NO	0.002861_0.002339	0.002000_0.002000	-1_-1	0.002000_0.002339	0.00272851	0	-	0.000273373
+chr8	23437019	A	NO	-1_-1	0.002000_0.002000	0.002183_0.002595	0.002000_0.003189	-	0	0.00151057	0.00173461
+chr8	23437020	A	NO	-1_-1	0.002168_0.002000	0.003176_0.002300	0.002000_0.002000	-	0.00131752	0.00334448	0
+
+```
+
+Once this file is ready, we need to give it as input to the AmpliSolveVariantCalling program that deploys a statistical framework for identifying SNVs.
+
+### Run AmpliSolveVariantCalling
+
+Once the tumour input data are ready, and the error levels per position, nucleotide and strand are ready (see above), we can identify SNVs using the binary AmpliSolveVariantCalling
+
+Type:
+
+```
+TODO
+```
 
 
 
