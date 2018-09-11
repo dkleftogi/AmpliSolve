@@ -1,0 +1,18 @@
+all: prog
+
+LIBRARIES = -lbam -lm -lz -lpthread
+LIBRARIESDIR = ./lib/macosx/
+INCLUDESDIR = ./include/
+CC = gcc
+CC2 = cc
+CFLAGS = -g -w -Wall -O2
+EXTRAFLAGS = -std=c++0x -lstdc++
+APPNAME = computeCounts
+
+prog: 
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveErrorEstimation AmpliSolveErrorEstimation.cpp $(EXTRAFLAGS)
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveVariantCalling AmpliSolveVariantCalling.cpp $(EXTRAFLAGS)
+
+clean: 
+	rm AmpliSolveErrorEstimation AmpliSolveVariantCalling 
+

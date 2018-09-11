@@ -13,7 +13,7 @@ AmpliSolveVariantCalling
 
 ### Prepare the input files
 
-AmpliSolve requires a pre-processing step that utilizes ASEQ. To make the execution faster, this is a separate step that can be executed in parallel using a bash script for example in a cluster. ASEQ software is available at https://demichelislab.unitn.it/doku.php?id=public:aseq , but we also provide a simplified version of ASEQ named computeCounts (only the binary, please contact us for more info) in our Versions_used_during_development DIR. This program deploys the PILEUP mode of ASEQ which is the one we need for this pre-processing step. 
+AmpliSolve requires a pre-processing step that utilizes ASEQ. To make the execution faster, this is a separate step that can be executed in parallel using a bash script for example in a cluster. ASEQ software is available at https://demichelislab.unitn.it/doku.php?id=public:aseq , but we also provide a simplified version of ASEQ named computeCounts (only the binary, please contact us for more info) in our Pre-compiled_binaries DIR. This program deploys the PILEUP mode of ASEQ which is the one we need for this pre-processing step. 
 
 We recommend to place all available normal samples (germline) in a separete DIR say NORMAL_BAM_DIR , and all tumour samples in another DIR named TUMOUR_BAM_DIR 
 
@@ -132,9 +132,9 @@ tumour_dir=TUMOUR_ASEQ_DIR
 
 Execution of AmpliSolveVariantCalling with this command will produce a flat file named VariantCalling_Testing/Summary_Variant_Info.txt that contains all the variants found for all tumour samples stored in the tumour_dir=TUMOUR_ASEQ_DIR. In the TODO list (sortly), we will enable to write the results per sample in the typical VCF format.
 
-### Where can I find some toy data to test AmpliSolve
+### Can I find some toy data to test AmpliSolve ??
 
-Check the Toy_data directory that contains:
+Yes, please check the Toy_data directory that contains:
 
 ```
 AmpliSeq_30genes_Designed-1.bed
@@ -157,3 +157,8 @@ NORMAL_ASEQ_DIR and TUMOUR_ASEQ_DIR
 ```
 Contain 5 normal and 3 tumour samples in the .ASEQ format. You can use this toy examples to run AmpliSolveErrorEstimation and then call SNVs using AmpliSolveVariantCalling
 
+#### Can I have pre-compiled binaries to run ?
+
+Yes, we provide compiled binaries for the Mac we used during the developemnt for programs AmpliSolveErrorEstimation, AmpliSolveVariantCalling and computeCounts
+
+The computeCounts binary, deploys the ASEQ PILEUP mode and it can be used during the input data generation process if the original ASEQ is not available.

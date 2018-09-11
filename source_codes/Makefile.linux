@@ -1,0 +1,35 @@
+all: dynamic
+
+LIBRARIES = -lbam -lm -lz -lpthread
+LIBRARIESDIR32 = ./lib/linux32/
+LIBRARIESDIR64 = ./lib/linux64/
+INCLUDESDIR = ./include/
+CC = gcc
+CC2 = cc
+CFLAGS = -g -w -Wall -O2
+EXTRAFLAGS = -std=c++0x -lstdc++
+APPNAME = computeCounts
+
+dynamic: 
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveErrorEstimation AmpliSolveErrorEstimation.cpp $(EXTRAFLAGS)
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveVariantCalling AmpliSolveVariantCalling.cpp $(EXTRAFLAGS)
+	
+
+	
+static: 
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveErrorEstimation AmpliSolveErrorEstimation.cpp $(EXTRAFLAGS)
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveVariantCalling AmpliSolveVariantCalling.cpp $(EXTRAFLAGS)
+	
+
+	
+i386: 
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveErrorEstimation AmpliSolveErrorEstimation.cpp $(EXTRAFLAGS)
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveVariantCalling AmpliSolveVariantCalling.cpp $(EXTRAFLAGS)
+
+	
+statici386: 
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveErrorEstimation AmpliSolveErrorEstimation.cpp $(EXTRAFLAGS)
+	$(CC2) -I $(BOOST_FLAG) -o AmpliSolveVariantCalling AmpliSolveVariantCalling.cpp $(EXTRAFLAGS)
+	
+clean: 
+	rm AmpliSolveErrorEstimation AmpliSolveVariantCalling
