@@ -38,7 +38,7 @@ Download the libraries, untar using tar -xvf and simply store the folder in your
 
 AmpliSolve is a C++ program, thus you need the C++ compiler to be installed in your computer. The program has been developed in a Mac OS computer with El Capitan version 10.11.5. The C++ compiler used for development is the clang C, C++ and Objective-C compiler.The program works for Unix-like systems. The program might work on Windows under cygwin emulator, however it has not been tested.
 
-### To install AmpliSolve type on the following:
+### To install AmpliSolve type one of the following:
 
 
 Linux x64:
