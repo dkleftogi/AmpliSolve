@@ -24,8 +24,9 @@ To run ASEQ (or equally computeCounts) type:
 ```
 
 where: 
-1. dummyVCF.txt is a VCF-like file that contains all positions in the gene panel. Assuming that we have a small panel with one amplicon chr8:23437012-23437020
-the dummyVCF.txt will look like:
+1. dummyVCF.txt is a VCF-like file that contains all positions in the gene panel. Remember that this is not the actual panel design, as the panel design contains amplicons written as intervals, whereas here we enumate all positions in the panel. 
+
+Assuming that we have a small panel with one amplicon chr8:23437012-23437020 the dummyVCF.txt will look like:
 
 ```
 chr8	23437012	.	.	.	.	.	.
@@ -78,9 +79,8 @@ germline_dir=NORMAL_ASEQ_DIR
 
 5. output_dir is a DIR to store some intermediate results
 
-One complete execution example looks as follows:
+#### One complete execution example looks as follows:
 
-####
 ```
 ./AmpliSolveErrorEstimation panel_design=AmpliSeq_30genes_Designed-1.bed reference_genome=/Users/Reference_genome/hg19_chr.fa germline_dir=NORMAL_ASEQ_DIR C_value=0.002 output_dir=FirstExecution
 ```
