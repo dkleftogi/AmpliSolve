@@ -40,10 +40,6 @@ AmpliSolve is a C++ program, thus you need the C++ compiler to be installed in y
 
 ### To install AmpliSolve type one of the following:
 
-
-Linux x64:
-If your kernel is >= 2.6.15 type `make -fMakefile.linux BOOST_FLAG=/your/dir/to/boost/libraries' to compile all programs.
-
 Linux i386 with kernel >= 2.6.15  
 ```
 make -fMakefile.linux i386 BOOST_FLAG=/your/dir/to/boost/libraries
