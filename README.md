@@ -5,7 +5,7 @@ AmpliSolve, is a new bioinfrmatics tool for precise error estimation and variant
 
 ## Dependencies and System Requirements
 
-AmpliSolve dependes on the following:
+AmpliSolve depends on the following:
 
 ```
 1. SAM tools downloaded from http://samtools.sourceforge.net/
