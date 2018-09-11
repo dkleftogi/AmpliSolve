@@ -158,7 +158,7 @@ NORMAL_ASEQ_DIR and TUMOUR_ASEQ_DIR
 ```
 Contain 5 normal and 3 tumour samples in the .ASEQ format. You can use this toy examples to run AmpliSolveErrorEstimation and then call SNVs using AmpliSolveVariantCalling
 
-#### Can I have pre-compiled binaries to run ?
+### Can I have pre-compiled binaries to run ?
 
 Yes, we provide compiled binaries for the Mac we used during the developemnt for programs AmpliSolveErrorEstimation, AmpliSolveVariantCalling and computeCounts
 
