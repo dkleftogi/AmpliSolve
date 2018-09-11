@@ -73,6 +73,8 @@ PATH=$PATH:/write/your/dir/to/AmpliSolve/source_codes
 
 ## Contact me
 
-If you face any compilation problems, issues with dependencies, versions and so on, or you found bugs please contact me. I would also appreciate hearing about how you used this code, improvements that you have made to it. 
+If you face any compilation problems, issues with dependencies, versions and so on, or you found bugs please contact me at dimitrios DOT kleftogiannis AT icr DOT ac DOT uk 
+
+I would also appreciate hearing about how you used this code, improvements that you have made to it. 
 
 
