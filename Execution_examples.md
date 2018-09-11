@@ -46,6 +46,7 @@ chr8	23437020	.	.	.	.	.	.
 4. mbq, mrq , mdc are quality parameters ; we recommend the triplet 20-20-20 for Ion AmpliSeq data
 
 5. Out_DIR is the directory to store the read count files ending with .PILEUP.ASEQ 
+
 Since we need a DIR of normal read counts to compute the error levels, we must store all .PILEUP.ASEQ of normal samples in one DIR say NORMAL_ASEQ_DIR 
 
 In a similar fashion, we need a DIR for all tumour read counts to perform variant calling, so we must store all .PILEUP.ASEQ of tumour samples in another DIR say TUMOUR_ASEQ_DIR 
