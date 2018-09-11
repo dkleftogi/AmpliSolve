@@ -1,43 +1,38 @@
-AmpliSolve: detecting somatic single nucleotide variants and copy number aberrations from Ion Torrent, amplicon-based sequencing data
-====================================================================================================
+# AmpliSolve
 
-AmpliSolve, is a new tool to identify somatic single nucleotide variants (SNVs) and copy number (CN) aberrations in matched tumour-normal samples from targeted deep sequencing experiments. 
-
-AmpliSolve has been designed specifically for amplicon-based libraries sequenced with the Ion Torrent platform but it can be equally applied to other platforms (not tested yet). 
+AmpliSolve, is a new bioinfrmatics tool for precise error estimation and variant calling in targeted deep sequencing data. AmpliSolve has been designed specifically for amplicon-based libraries sequenced with the Ion AmpliSeq technology, and it can be in principle be applied to other platforms (but not tested yet). AmpliSolve uses a population of normal samples as a training set to infer a position specific, nucleotide specific and strand specific background noise levels, and deploys a Poisson-based statistical model to identify single nucleotide variants. We have tested AmpliSolve on circulating tumor DNA (ctDNA) samples sequenced using a custom AmpliSeq panel. 
 
 
-It relies on a population of normal samples to infer a position specific sequencing error (noise) and to estimate the expected coverage at copy neutral regions. 
-
-
-We tested AmpliSolve on circulating tumor DNA (ctDNA) samples sequenced using a custom amplicon (AmpliSeq) panel. 
-
-Our results show that AmpliSolve discriminates effectively SNVs from background noise even at low allele frequency and estimates accurately CN aberrations.       
-
-
-Dependencies and System Requirements
-====================================================================================================
+## Dependencies and System Requirements
 
 AmpliSolve dependes on the following:
 
+```
 1. SAM tools http://samtools.sourceforge.net/
-    
+``` 
+```
 2. Bed tools http://bedtools.readthedocs.io/en/latest/
+```
 
-Make sure that both are intalled and also included in the PATH of your system. If not you may need a command like: PATH=$PATH:/your/path/to/Samtools
+Make sure that both are installed and included in the PATH of your system. If not you may need a command like: 
 
-During the program development and testing Samtools v1.3.1 and bedtools v2.17.9 were used.
+```
+PATH=$PATH:/your/path/to/Samtools
+```
+
+During the program development we used Samtools v1.3.1 and bedtools v2.17.9 (both provided with the original licences)
    
+```
 3. ASEQ software downloaded from https://demichelislab.unitn.it/doku.php?id=public:aseq
+```
+We use ASEQ to generate read count files ending with .PILEUP.ASEQ, from the original BAM files. AmpliSolve does not work on the actual BAM files, and thus it requires to pre-process the input and generate the input in the appropriate format. Examples are provided below.  
 
-This has been integrated into AmpliSolve's source codes. 
+```
+4. Boost libraries from http://www.boost.org/
+```
 
-4. Boost libraries.
-    
-Download boost libraries from http://www.boost.org/ untar using tar -xvf and store the folder in your system.
+Download the libraries, untar using tar -xvf and simply store the folder in your system.
    
-More details about AmpliSolve, and toy execution examples will be availalbe soon. 
-
-
 
 Compilation
 ====================================================================================================
