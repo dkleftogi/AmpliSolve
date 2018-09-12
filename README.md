@@ -1,6 +1,6 @@
 # AmpliSolve
 
-AmpliSolve, is a new tool for precise error estimation and variant calling in targeted deep sequencing data. AmpliSolve has been designed specifically for amplicon-based libraries sequenced with the Ion AmpliSeq technology, and it can in principle be applied to other platforms. AmpliSolve uses a population of normal samples as a training set to infer position specific, nucleotide specific and strand specific background noise levels, and deploys a Poisson-based statistical model to identify single nucleotide variants. We have tested AmpliSolve on circulating tumor DNA (ctDNA) samples sequenced using a custom AmpliSeq panel. 
+Identification of single nucleotide variants using position-specific error estimation in deep sequencing data. AmpliSolve has been designed specifically for amplicon-based libraries sequenced with the Ion AmpliSeq technology, and it can in principle be applied to other platforms. AmpliSolve uses a population of normal samples as a training set to infer position specific, nucleotide specific and strand specific background noise levels, and deploys a Poisson-based statistical model to identify single nucleotide variants. We have tested AmpliSolve on circulating tumor DNA (ctDNA) samples sequenced using a custom AmpliSeq panel. 
 
 
 ## Dependencies and System Requirements
@@ -17,7 +17,7 @@ Make sure that is installed and included in the PATH of your system. If not you 
 PATH=$PATH:/your/path/to/Samtools
 ```
 
-During the program development we used Samtools v1.3.1 and bedtools v2.17.9 (both provided with the original licences)
+During the program development we used Samtools v1.3.1 (provided with the original licences)
    
 ```
 2. ASEQ software downloaded from https://demichelislab.unitn.it/doku.php?id=public:aseq
@@ -68,7 +68,9 @@ PATH=$PATH:/write/your/dir/to/AmpliSolve/source_codes
 
 ## Licence
 
-This project is licenced under the the Educational Community License, Version 2.0. You may not use this file except in compliance with the License. You may obtain a copy of the License at https://opensource.org/licenses/ECL-2.0
+This project is licenced under the MIT Licence. 
+
+You may not use this file except in compliance with the License. You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 ## Contact
 

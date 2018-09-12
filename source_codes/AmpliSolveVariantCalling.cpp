@@ -1,35 +1,36 @@
-/******************************************************************************************************
-							         AmpliSolveVariantCalling
+/************************************************************************************************************************************************************************************************************
+							                     AmpliSolveVariantCalling
 
                             Variant calling using a Poisson model
 
 BEGIN COPYRIGHT NOTICE
 
-     AmpliSolveVariantCalling code -- (c) 2018 Dimitrios Kleftogiannis -- ICR -- www.icr.ac.uk
+      AmpliSolveVariantCalling code -- (c) 2018 Dimitrios Kleftogiannis -- ICR -- www.icr.ac.uk
 
-     Copyright 2018 Dimitrios Kleftogiannis Licensed under the
-     Educational Community License, Version 2.0 (the "License"); you may
-     not use this file except in compliance with the License. You may
-     obtain a copy of the License at
+      The MIT License; 
+      You may not use this file except in compliance with the License. 
 
-     https://opensource.org/licenses/ECL-2.0
+      Copyright 2018 Dimitrios Kleftogiannis
 
-     Unless required by applicable law or agreed to in writing,
-     software distributed under the License is distributed on an "AS IS"
-     BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
-     or implied. See the License for the specific language governing
-     permissions and limitations under the License.
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), 
+      to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+      and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-     Published reports of research using this code (or a modified version) should cite the 
-     article that describes AmpliSolve, see below for more information. 
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+      Published reports of research using this code (or a modified version) should cite the 
+      article that describes AmpliSolve, see below for more information. 
      
-     Comments and bug reports are welcome. 
+      Comments and bug reports are welcome. 
 
-     Email to dimitrios.kleftogiannis@icr.ac.uk 
-     I would also appreciate hearing about how you used this code, improvements that you have made to it.
+      Email to dimitrios.kleftogiannis@icr.ac.uk 
+      I would also appreciate hearing about how you used this code, improvements that you have made to it.
  
-     You are free to modify, extend or distribute this code, as long 
-     as this copyright notice is included whole and unchanged. 
+      You are free to modify, extend or distribute this code, as long as this copyright notice is included whole and unchanged. 
 
 END COPYRIGHT NOTICE
  
@@ -75,7 +76,7 @@ DEPENDENCIES
 
     Program computCounts can be executed alone, or incorportated into other pipelines for parallel faster execution (e.g., bash script in a cluster).
     
-    4. Boost libraries.
+    3. Boost libraries.
     
     Download them from http://www.boost.org/ and give the path uppon compilation in the makefile (instructions provided).
     
@@ -108,6 +109,7 @@ COMPILATION
 
     At the end you might want to add all binaries generated with the previous command to your PATH: the command looks like PATH=$PATH:/write/your/dir/to/AmpliSolve/source_codes
 
+************************************************************************************************************************************************************************************************************
 
 */
 
