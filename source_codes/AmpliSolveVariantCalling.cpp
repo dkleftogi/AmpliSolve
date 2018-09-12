@@ -58,14 +58,13 @@ DEPENDENCIES
     
     1. SAM tools http://samtools.sourceforge.net/
     
-    2. Bed tools http://bedtools.readthedocs.io/en/latest/
 
-    Make sure that both are intalled and also included in the PATH of your system.
+    Make sure that is intalled and also included in the PATH of your system.
     
     If not you may need a command like: PATH=$PATH:/your/path/to/Samtools to add the programs to the working PATH
 
 
-    3. ASEQ https://demichelislab.unitn.it/doku.php?id=public:aseq
+    2. ASEQ https://demichelislab.unitn.it/doku.php?id=public:aseq
     
     (Supplementary script is provided)
 
