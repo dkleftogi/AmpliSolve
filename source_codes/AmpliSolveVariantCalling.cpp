@@ -793,7 +793,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                     {
                         //just check that the code works...and all the reference base positions are inside the Hash
                         //debug
-                        std::cout<<"malakia"<<std::endl;    
+                        std::cout<<"mistake..."<<std::endl;    
                     }
                     else
                     {
@@ -821,7 +821,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -972,7 +972,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -1121,7 +1121,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -1274,7 +1274,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -1423,7 +1423,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -1572,7 +1572,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -1726,7 +1726,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -1875,7 +1875,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -2022,7 +2022,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -2178,7 +2178,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -2329,7 +2329,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -2477,7 +2477,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                           got_Thresholds=Thresholds.find(prompt_key);
                           if(got_Thresholds==Thresholds.end())
                           {
-                            std::cout<<"malakia"<<std::endl;
+                            std::cout<<"mistake..."<<std::endl;
                           }
                           else
                           {
@@ -2623,7 +2623,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                         }//end of ref T
                         else
                         {
-                          std::cout<<"malakia"<<std::endl;
+                          std::cout<<"mistake --> malakia diladi..."<<std::endl;
                         }   
                     }  
 
