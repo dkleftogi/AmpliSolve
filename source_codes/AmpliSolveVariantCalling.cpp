@@ -618,10 +618,10 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
     {
 
          
-        //std::ofstream vcf_output;
-        //char vcf_file[500];
-        //memset(vcf_file,0,500);
-        //sprintf(vcf_file,"%s/%s.vcf",output_dir,tumourFile);
+        std::ofstream vcf_output;
+        char vcf_file[500];
+        memset(vcf_file,0,500);
+        sprintf(vcf_file,"%s/%s.vcf",output_dir,it->second.c_str());
         char cat_dup_fisher[50];
         
         double max_germ=0;
@@ -629,8 +629,8 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
         time_t now = time(0);
         // convert now to string form
         char* dt = ctime(&now);
-        //vcf_output.open(vcf_file);
-        //vcf_output<<"##fileformat=VCFv4.0\n##fileDate="<<dt<<"##source=AmpliSolve_VariantCalling\n##reference=Not_Specified_here\n##phasing=Not_Specified_here\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##INFO=<ID=RD,Number=1,Type=Integer,Description='Total Read Depth'>\n##SAMPLE=<ID=NORMAL,SampleName=YYYYYYYYYYYYYYY>\n##SAMPLE=<ID=TUMOR,SampleName=YYYYYYYYYYYYYYYY>\n##INFO=<ID=AF,Number=.,Type=Float,Description='Allele Frequency'>\n##INFO=<ID=SR,Number=1,Type=String,Description='Supporting Reads'>\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO"<<std::endl;
+        vcf_output.open(vcf_file);
+        vcf_output<<"##fileformat=VCFv4.0\n##fileDate="<<dt<<"##source=AmpliSolveVariantCalling\n##reference=Not_Specified_here\n##phasing=Not_Specified_here\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##INFO=<ID=RD,Number=1,Type=Integer,Description='Total Read Depth'>\n##SAMPLE=<ID=NORMAL,SampleName=YYYYYYYYYYYYYYY>\n##SAMPLE=<ID=TUMOR,SampleName=YYYYYYYYYYYYYYYY>\n##INFO=<ID=AF,Number=.,Type=Float,Description='Allele Frequency'>\n##INFO=<ID=SR,Number=1,Type=String,Description='Supporting Reads'>\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO"<<std::endl;
 
         char filename_ID[300];
         char patient_ID[50];
@@ -923,19 +923,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'C')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
 
                                                   }
 
@@ -943,21 +943,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
 
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"A->C"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_C<<"\t"<<base_Cfw<<"\t"<<base_Cr<<"\t"<<AF_Cfw<<"\t"<<AF_Cbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'C')<<std::endl;
@@ -1071,19 +1071,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'G')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
                                                   }
 
@@ -1091,21 +1091,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
 
                                     //write the variant
@@ -1219,19 +1219,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'T')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
                                                   }
 
@@ -1239,21 +1239,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
 
                                     //write the variant
@@ -1374,19 +1374,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'A')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                       //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                       vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
                                                   }
 
@@ -1394,21 +1394,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                     }
 
                                     //write the variant
@@ -1522,19 +1522,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'G')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
                                                   }
 
@@ -1542,21 +1542,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
 
                                     //write the variant
@@ -1671,19 +1671,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'T')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                    //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                   // vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                   vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
                                                   }
 
@@ -1691,21 +1691,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
 
                                     //write the variant
@@ -1825,19 +1825,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'A')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                    //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                   // vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                   vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
                                                   }
 
@@ -1845,21 +1845,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                     }
 
                                     //write the variant
@@ -1974,39 +1974,39 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'C')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                    //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                                   }
                                                   else
                                                   {
-                                                    //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                                   }
 
                                                 }
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
 
                                     //write the variant
@@ -2121,19 +2121,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'T')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                    //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                    //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
                                                   }
 
@@ -2141,21 +2141,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
 
 
@@ -2277,19 +2277,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'A')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                     // vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                     vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
                                                   }
 
@@ -2297,21 +2297,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
                                     }
 
 
@@ -2427,19 +2427,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'C')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                    //  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
 
                                                   }
 
@@ -2447,21 +2447,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                // vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                                vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                           // vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                           vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
 
                                     //write the variant
@@ -2576,19 +2576,19 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             {
                                                 if(homopolymerTest(down,up,'G')==1)
                                                 {
-                                                  //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                                 }
                                                 else
                                                 {
 
                                                   if(Q_fw>=20 && Q_bw>=20)
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
                                                   }
                                                   else
                                                   {
-                                                      //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
                                                   }
 
@@ -2596,21 +2596,21 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                             }
                                             else
                                             {
-                                                 //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                             }
                                         }
                                         else
                                         {
-                                            //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                         }
                                     }
                                     else if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
                                     else
                                     {
-                                        //vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
 
                                     //write the variant
@@ -2631,7 +2631,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
             }//end of if after reading a line
           }
         }
-        //vcf_output.close(); 
+        vcf_output.close(); 
     }
     output.close();
     
@@ -3051,7 +3051,7 @@ int homopolymerTest(char *down, char *up,char sub)
 
 }
 
-//function addopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
+//function adopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
 double kf_gammap(double s, double z)
 {
     return z <= 1. || z < s? _kf_gammap(s, z) : 1. - _kf_gammaq(s, z);
@@ -3062,7 +3062,7 @@ double kf_gammaq(double s, double z)
     return z <= 1. || z < s? 1. - _kf_gammap(s, z) : _kf_gammaq(s, z);
 }
 
-//function addopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
+//function adopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
 // regularized upper incomplete gamma function, by continued fraction
 static double _kf_gammaq(double s, double z)
 {
@@ -3085,7 +3085,7 @@ static double _kf_gammaq(double s, double z)
     return exp(s * log(z) - z - kf_lgamma(s) - log(f));
 }
 
-//function addopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
+//function adopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
 double kf_erfc(double x)
 {
     const double p0 = 220.2068679123761;
@@ -3114,7 +3114,7 @@ double kf_erfc(double x)
     return x > 0.? 2. * p : 2. * (1. - p);
 }
 
-//function addopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
+//function adopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
 // regularized lower incomplete gamma function, by series expansion
 static double _kf_gammap(double s, double z)
 {
@@ -3147,7 +3147,7 @@ double fisherTest(int a,int b,int c, int d)
     return tmp_p;
 }
 
-//function addopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
+//function adopted by https://github.com/lh3/samtools/blob/master/bcftools/kfunc.c
 double kf_lgamma(double z)
 {
     double x = 0;

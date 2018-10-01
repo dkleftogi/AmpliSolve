@@ -984,6 +984,7 @@ void produceReadCounts(char *input_vcf, char *input_threads,char *input_mbq,char
     for(std::unordered_map<std::string,std::string>::iterator it=Hash.begin(); it!=Hash.end();++it)
     {
             memset(command,0,500);
+            //binary computeCounts is the same as aseq; use exactly the same command
             sprintf(command,"computeCounts vcf=%s bam=%s threads=%s mbq=%s mrq=%s mdc=%s out=%s",input_vcf,it->first.c_str(),input_threads,input_mbq,input_mrq,input_mdc,output_dir);
             //std::cout<<command<<std::endl;
             count++;
@@ -1577,9 +1578,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
 
         if(strcmp(chrom,chrom_X)==0 || strcmp(chrom,chrom_Y)==0 || strcmp(chrom,chrom_M)==0 || strcmp(chrom,chrom_chrX)==0 || strcmp(chrom,chrom_chrY)==0 || strcmp(chrom,chrom_chrM)==0)
         {
-               AF_fw=float(sum_fw_nt)/float(sum_fw_RD);
-               AF_bw=float(sum_bw_nt)/float(sum_bw_RD);
-
+               
                float ratio_fw=-888;
                float ratio_bw=-888;
                if (sum_fw_RD==0 && sum_bw_RD==0 )
@@ -1602,41 +1601,64 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                     ratio_fw=float(sum_Ri_fw)/float(sum_fw_RD);
                     ratio_bw=float(sum_Ri_bw)/float(sum_bw_RD);
                }
-               
-
-               if(isnan(AF_fw) || isnan(AF_bw))
+               //0.38 was the original value for count
+               if(count<0.38*Value_Hash.count(prompt_key))
                {
+                    //there is a problem here because there are a lot of sample that do not meet the requirements
+                    //generate the record details for the forward strand
                     memset(insert_key,0,50);
                     sprintf(insert_key,"%s",prompt_key);
                     memset(insert_value,0,50);
                     sprintf(insert_value,"-1_-1");
                     //store it
-                    Thresholds.insert(std::make_pair(insert_key,insert_value));
+                    Thresholds.insert(std::make_pair(insert_key,insert_value));  
                     memset(count_value,0,50);
                     sprintf(count_value,"%d",count);
                     CountHash.insert(std::make_pair(insert_key,count_value));
 
                     memset(coverage_value,0,50);
-                    sprintf(coverage_value,"-1_-1");
+                    sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
                     RatioHash.insert(std::make_pair(insert_key,coverage_value));
                }
                else
                {
-                    //generate the record details for the forward strand
-                    memset(insert_key,0,50);
-                    sprintf(insert_key,"%s",prompt_key);
-                    memset(insert_value,0,50);
-                    sprintf(insert_value,"%f_%f",AF_fw,AF_bw);
-                    //store it
-                    Thresholds.insert(std::make_pair(insert_key,insert_value));
-                    memset(count_value,0,50);
-                    sprintf(count_value,"%d",count);
-                    CountHash.insert(std::make_pair(insert_key,count_value)); 
+                    AF_fw=float(sum_fw_nt)/float(sum_fw_RD);
+                    AF_bw=float(sum_bw_nt)/float(sum_bw_RD);
 
-                    memset(coverage_value,0,50);
-                    sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
-                    RatioHash.insert(std::make_pair(insert_key,coverage_value));   
-               }      
+                    if(isnan(AF_fw) || isnan(AF_bw))
+                    {
+                         memset(insert_key,0,50);
+                         sprintf(insert_key,"%s",prompt_key);
+                         memset(insert_value,0,50);
+                         sprintf(insert_value,"-1_-1");
+                         //store it
+                         Thresholds.insert(std::make_pair(insert_key,insert_value));
+                         memset(count_value,0,50);
+                         sprintf(count_value,"%d",count);
+                         CountHash.insert(std::make_pair(insert_key,count_value));
+
+                         memset(coverage_value,0,50);
+                         sprintf(coverage_value,"-1_-1");
+                         RatioHash.insert(std::make_pair(insert_key,coverage_value));
+                    }
+                    else
+                    {
+                         //generate the record details for the forward strand
+                         memset(insert_key,0,50);
+                         sprintf(insert_key,"%s",prompt_key);
+                         memset(insert_value,0,50);
+                         sprintf(insert_value,"%f_%f",AF_fw,AF_bw);
+                         //store it
+                         Thresholds.insert(std::make_pair(insert_key,insert_value));
+                         memset(count_value,0,50);
+                         sprintf(count_value,"%d",count);
+                         CountHash.insert(std::make_pair(insert_key,count_value)); 
+
+                         memset(coverage_value,0,50);
+                         sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
+                         RatioHash.insert(std::make_pair(insert_key,coverage_value));   
+                    }      
+               }
         }
         else
         {
@@ -1802,8 +1824,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
         }
         if(strcmp(chrom,chrom_X)==0 || strcmp(chrom,chrom_Y)==0 || strcmp(chrom,chrom_M)==0 || strcmp(chrom,chrom_chrX)==0 || strcmp(chrom,chrom_chrY)==0 || strcmp(chrom,chrom_chrM)==0)
         {
-               AF_fw=float(sum_fw_nt)/float(sum_fw_RD);
-               AF_bw=float(sum_bw_nt)/float(sum_bw_RD);
+              
                float ratio_fw=-888;
                float ratio_bw=-888;
                if (sum_fw_RD==0 && sum_bw_RD==0 )
@@ -1826,40 +1847,64 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                     ratio_fw=float(sum_Ri_fw)/float(sum_fw_RD);
                     ratio_bw=float(sum_Ri_bw)/float(sum_bw_RD);
                }
-
-               if(isnan(AF_fw) || isnan(AF_bw))
+               //0.38 was the original value for count
+               if(count<0.38*Value_Hash.count(prompt_key))
                {
+                    //there is a problem here because there are a lot of sample that do not meet the requirements
+                    //generate the record details for the forward strand
                     memset(insert_key,0,50);
                     sprintf(insert_key,"%s",prompt_key);
                     memset(insert_value,0,50);
                     sprintf(insert_value,"-1_-1");
                     //store it
-                    Thresholds.insert(std::make_pair(insert_key,insert_value));
+                    Thresholds.insert(std::make_pair(insert_key,insert_value));  
                     memset(count_value,0,50);
                     sprintf(count_value,"%d",count);
                     CountHash.insert(std::make_pair(insert_key,count_value));
 
                     memset(coverage_value,0,50);
-                    sprintf(coverage_value,"-1_-1");
-                    RatioHash.insert(std::make_pair(insert_key,coverage_value)); 
+                    sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
+                    RatioHash.insert(std::make_pair(insert_key,coverage_value));
                }
                else
                {
-                    //generate the record details for the forward strand
-                    memset(insert_key,0,50);
-                    sprintf(insert_key,"%s",prompt_key);
-                    memset(insert_value,0,50);
-                    sprintf(insert_value,"%f_%f",AF_fw,AF_bw);
-                    //store it
-                    Thresholds.insert(std::make_pair(insert_key,insert_value));  
-                    memset(count_value,0,50);
-                    sprintf(count_value,"%d",count);
-                    CountHash.insert(std::make_pair(insert_key,count_value));  
+                    AF_fw=float(sum_fw_nt)/float(sum_fw_RD);
+                    AF_bw=float(sum_bw_nt)/float(sum_bw_RD);
 
-                    memset(coverage_value,0,50);
-                    sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
-                    RatioHash.insert(std::make_pair(insert_key,coverage_value)); 
-               }      
+                    if(isnan(AF_fw) || isnan(AF_bw))
+                    {
+                         memset(insert_key,0,50);
+                         sprintf(insert_key,"%s",prompt_key);
+                         memset(insert_value,0,50);
+                         sprintf(insert_value,"-1_-1");
+                         //store it
+                         Thresholds.insert(std::make_pair(insert_key,insert_value));
+                         memset(count_value,0,50);
+                         sprintf(count_value,"%d",count);
+                         CountHash.insert(std::make_pair(insert_key,count_value));
+
+                         memset(coverage_value,0,50);
+                         sprintf(coverage_value,"-1_-1");
+                         RatioHash.insert(std::make_pair(insert_key,coverage_value));
+                    }
+                    else
+                    {
+                         //generate the record details for the forward strand
+                         memset(insert_key,0,50);
+                         sprintf(insert_key,"%s",prompt_key);
+                         memset(insert_value,0,50);
+                         sprintf(insert_value,"%f_%f",AF_fw,AF_bw);
+                         //store it
+                         Thresholds.insert(std::make_pair(insert_key,insert_value));
+                         memset(count_value,0,50);
+                         sprintf(count_value,"%d",count);
+                         CountHash.insert(std::make_pair(insert_key,count_value)); 
+
+                         memset(coverage_value,0,50);
+                         sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
+                         RatioHash.insert(std::make_pair(insert_key,coverage_value));   
+                    }      
+               }
         }
         else
         {
@@ -2027,8 +2072,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
         
         if(strcmp(chrom,chrom_X)==0 || strcmp(chrom,chrom_Y)==0 || strcmp(chrom,chrom_M)==0 || strcmp(chrom,chrom_chrX)==0 || strcmp(chrom,chrom_chrY)==0 || strcmp(chrom,chrom_chrM)==0)
         {
-               AF_fw=float(sum_fw_nt)/float(sum_fw_RD);
-               AF_bw=float(sum_bw_nt)/float(sum_bw_RD);
+               
                float ratio_fw=-888;
                float ratio_bw=-888;
                if (sum_fw_RD==0 && sum_bw_RD==0 )
@@ -2051,39 +2095,64 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                     ratio_fw=float(sum_Ri_fw)/float(sum_fw_RD);
                     ratio_bw=float(sum_Ri_bw)/float(sum_bw_RD);
                }
-               if(isnan(AF_fw) || isnan(AF_bw))
+               //0.38 was the original value for count
+               if(count<0.38*Value_Hash.count(prompt_key))
                {
+                    //there is a problem here because there are a lot of sample that do not meet the requirements
+                    //generate the record details for the forward strand
                     memset(insert_key,0,50);
                     sprintf(insert_key,"%s",prompt_key);
                     memset(insert_value,0,50);
                     sprintf(insert_value,"-1_-1");
                     //store it
-                    Thresholds.insert(std::make_pair(insert_key,insert_value));
+                    Thresholds.insert(std::make_pair(insert_key,insert_value));  
                     memset(count_value,0,50);
                     sprintf(count_value,"%d",count);
                     CountHash.insert(std::make_pair(insert_key,count_value));
 
                     memset(coverage_value,0,50);
-                    sprintf(coverage_value,"-1_-1");
-                    RatioHash.insert(std::make_pair(insert_key,coverage_value)); 
+                    sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
+                    RatioHash.insert(std::make_pair(insert_key,coverage_value));
                }
                else
                {
-                    //generate the record details for the forward strand
-                    memset(insert_key,0,50);
-                    sprintf(insert_key,"%s",prompt_key);
-                    memset(insert_value,0,50);
-                    sprintf(insert_value,"%f_%f",AF_fw,AF_bw);
-                    //store it
-                    Thresholds.insert(std::make_pair(insert_key,insert_value));  
-                    memset(count_value,0,50);
-                    sprintf(count_value,"%d",count);
-                    CountHash.insert(std::make_pair(insert_key,count_value)); 
+                    AF_fw=float(sum_fw_nt)/float(sum_fw_RD);
+                    AF_bw=float(sum_bw_nt)/float(sum_bw_RD);
 
-                    memset(coverage_value,0,50);
-                    sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
-                    RatioHash.insert(std::make_pair(insert_key,coverage_value));  
-               }      
+                    if(isnan(AF_fw) || isnan(AF_bw))
+                    {
+                         memset(insert_key,0,50);
+                         sprintf(insert_key,"%s",prompt_key);
+                         memset(insert_value,0,50);
+                         sprintf(insert_value,"-1_-1");
+                         //store it
+                         Thresholds.insert(std::make_pair(insert_key,insert_value));
+                         memset(count_value,0,50);
+                         sprintf(count_value,"%d",count);
+                         CountHash.insert(std::make_pair(insert_key,count_value));
+
+                         memset(coverage_value,0,50);
+                         sprintf(coverage_value,"-1_-1");
+                         RatioHash.insert(std::make_pair(insert_key,coverage_value));
+                    }
+                    else
+                    {
+                         //generate the record details for the forward strand
+                         memset(insert_key,0,50);
+                         sprintf(insert_key,"%s",prompt_key);
+                         memset(insert_value,0,50);
+                         sprintf(insert_value,"%f_%f",AF_fw,AF_bw);
+                         //store it
+                         Thresholds.insert(std::make_pair(insert_key,insert_value));
+                         memset(count_value,0,50);
+                         sprintf(count_value,"%d",count);
+                         CountHash.insert(std::make_pair(insert_key,count_value)); 
+
+                         memset(coverage_value,0,50);
+                         sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
+                         RatioHash.insert(std::make_pair(insert_key,coverage_value));   
+                    }      
+               }
         }
         else
         {   
@@ -2249,8 +2318,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
         }
         if(strcmp(chrom,chrom_X)==0 || strcmp(chrom,chrom_Y)==0 || strcmp(chrom,chrom_M)==0 || strcmp(chrom,chrom_chrX)==0 || strcmp(chrom,chrom_chrY)==0 || strcmp(chrom,chrom_chrM)==0)
         {
-               AF_fw=float(sum_fw_nt)/float(sum_fw_RD);
-               AF_bw=float(sum_bw_nt)/float(sum_bw_RD);
+               
                float ratio_fw=-888;
                float ratio_bw=-888;
                if (sum_fw_RD==0 && sum_bw_RD==0 )
@@ -2273,39 +2341,64 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                     ratio_fw=float(sum_Ri_fw)/float(sum_fw_RD);
                     ratio_bw=float(sum_Ri_bw)/float(sum_bw_RD);
                }
-               if(isnan(AF_fw) || isnan(AF_bw))
+               //0.38 was the original value for count
+               if(count<0.38*Value_Hash.count(prompt_key))
                {
+                    //there is a problem here because there are a lot of sample that do not meet the requirements
+                    //generate the record details for the forward strand
                     memset(insert_key,0,50);
                     sprintf(insert_key,"%s",prompt_key);
                     memset(insert_value,0,50);
                     sprintf(insert_value,"-1_-1");
                     //store it
-                    Thresholds.insert(std::make_pair(insert_key,insert_value));
+                    Thresholds.insert(std::make_pair(insert_key,insert_value));  
                     memset(count_value,0,50);
                     sprintf(count_value,"%d",count);
                     CountHash.insert(std::make_pair(insert_key,count_value));
 
                     memset(coverage_value,0,50);
-                    sprintf(coverage_value,"-1_-1");
-                    RatioHash.insert(std::make_pair(insert_key,coverage_value)); 
+                    sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
+                    RatioHash.insert(std::make_pair(insert_key,coverage_value));
                }
                else
                {
-                    //generate the record details for the forward strand
-                    memset(insert_key,0,50);
-                    sprintf(insert_key,"%s",prompt_key);
-                    memset(insert_value,0,50);
-                    sprintf(insert_value,"%f_%f",AF_fw,AF_bw);
-                    //store it
-                    Thresholds.insert(std::make_pair(insert_key,insert_value)); 
-                    memset(count_value,0,50);
-                    sprintf(count_value,"%d",count);
-                    CountHash.insert(std::make_pair(insert_key,count_value));   
+                    AF_fw=float(sum_fw_nt)/float(sum_fw_RD);
+                    AF_bw=float(sum_bw_nt)/float(sum_bw_RD);
 
-                    memset(coverage_value,0,50);
-                    sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
-                    RatioHash.insert(std::make_pair(insert_key,coverage_value)); 
-               }      
+                    if(isnan(AF_fw) || isnan(AF_bw))
+                    {
+                         memset(insert_key,0,50);
+                         sprintf(insert_key,"%s",prompt_key);
+                         memset(insert_value,0,50);
+                         sprintf(insert_value,"-1_-1");
+                         //store it
+                         Thresholds.insert(std::make_pair(insert_key,insert_value));
+                         memset(count_value,0,50);
+                         sprintf(count_value,"%d",count);
+                         CountHash.insert(std::make_pair(insert_key,count_value));
+
+                         memset(coverage_value,0,50);
+                         sprintf(coverage_value,"-1_-1");
+                         RatioHash.insert(std::make_pair(insert_key,coverage_value));
+                    }
+                    else
+                    {
+                         //generate the record details for the forward strand
+                         memset(insert_key,0,50);
+                         sprintf(insert_key,"%s",prompt_key);
+                         memset(insert_value,0,50);
+                         sprintf(insert_value,"%f_%f",AF_fw,AF_bw);
+                         //store it
+                         Thresholds.insert(std::make_pair(insert_key,insert_value));
+                         memset(count_value,0,50);
+                         sprintf(count_value,"%d",count);
+                         CountHash.insert(std::make_pair(insert_key,count_value)); 
+
+                         memset(coverage_value,0,50);
+                         sprintf(coverage_value,"%f_%f",ratio_fw,ratio_bw);
+                         RatioHash.insert(std::make_pair(insert_key,coverage_value));   
+                    }      
+               }
         }
         else
         { 
@@ -2511,7 +2604,38 @@ void generateFinalOutput(float C_value_float,char *panelDesign,std::unordered_ma
                     }
                     else
                     {
-                        output<<"\t"<<got_Thresholds_Hash_Analytic->second;
+
+                        //this part of the code fixes the issues with the error estimation
+
+                        char myRef[50];
+                        memset(myRef,0,50);
+                        sprintf(myRef,"%s",got_ReferenceBase_Hash->second.c_str());
+
+                        char myRefFlag[]="A";
+                        //the base is A so write -2_-2
+                        if(strcmp(myRefFlag,myRef)==0)
+                        {
+                          output<<"\t-2_-2";
+                        }
+                        else
+                        {
+                          char myValue[50];
+                          memset(myValue,0,50);
+                          sprintf(myValue,"%s",got_Thresholds_Hash_Analytic->second.c_str());
+
+                          char myValueFlag[]="-1_-1";
+                          if(strcmp(myValueFlag,myValue)==0)
+                          {
+                            output<<"\t0.01_0.01";
+                          }
+                          else
+                          {
+                            output<<"\t"<<got_Thresholds_Hash_Analytic->second;
+                          }
+
+                        }
+
+                        
                     }
 
                     //threshold C
@@ -2522,7 +2646,33 @@ void generateFinalOutput(float C_value_float,char *panelDesign,std::unordered_ma
                     }
                     else
                     {
-                        output<<"\t"<<got_Thresholds_Hash_Analytic->second;
+                        char myRef[50];
+                        memset(myRef,0,50);
+                        sprintf(myRef,"%s",got_ReferenceBase_Hash->second.c_str());
+
+                        char myRefFlag[]="C";
+                        //the base is A so write -2_-2
+                        if(strcmp(myRefFlag,myRef)==0)
+                        {
+                          output<<"\t-2_-2";
+                        }
+                        else
+                        {
+                          char myValue[50];
+                          memset(myValue,0,50);
+                          sprintf(myValue,"%s",got_Thresholds_Hash_Analytic->second.c_str());
+
+                          char myValueFlag[]="-1_-1";
+                          if(strcmp(myValueFlag,myValue)==0)
+                          {
+                            output<<"\t0.01_0.01";
+                          }
+                          else
+                          {
+                            output<<"\t"<<got_Thresholds_Hash_Analytic->second;
+                          }
+
+                        }
                     }
 
                     //threshold G
@@ -2533,7 +2683,33 @@ void generateFinalOutput(float C_value_float,char *panelDesign,std::unordered_ma
                     }
                     else
                     {
-                        output<<"\t"<<got_Thresholds_Hash_Analytic->second;
+                        char myRef[50];
+                        memset(myRef,0,50);
+                        sprintf(myRef,"%s",got_ReferenceBase_Hash->second.c_str());
+
+                        char myRefFlag[]="G";
+                        //the base is A so write -2_-2
+                        if(strcmp(myRefFlag,myRef)==0)
+                        {
+                          output<<"\t-2_-2";
+                        }
+                        else
+                        {
+                          char myValue[50];
+                          memset(myValue,0,50);
+                          sprintf(myValue,"%s",got_Thresholds_Hash_Analytic->second.c_str());
+
+                          char myValueFlag[]="-1_-1";
+                          if(strcmp(myValueFlag,myValue)==0)
+                          {
+                            output<<"\t0.01_0.01";
+                          }
+                          else
+                          {
+                            output<<"\t"<<got_Thresholds_Hash_Analytic->second;
+                          }
+
+                        }
                     }
 
                     //threshold T
@@ -2544,7 +2720,33 @@ void generateFinalOutput(float C_value_float,char *panelDesign,std::unordered_ma
                     }
                     else
                     {
-                        output<<"\t"<<got_Thresholds_Hash_Analytic->second;
+                        char myRef[50];
+                        memset(myRef,0,50);
+                        sprintf(myRef,"%s",got_ReferenceBase_Hash->second.c_str());
+
+                        char myRefFlag[]="T";
+                        //the base is A so write -2_-2
+                        if(strcmp(myRefFlag,myRef)==0)
+                        {
+                          output<<"\t-2_-2";
+                        }
+                        else
+                        {
+                          char myValue[50];
+                          memset(myValue,0,50);
+                          sprintf(myValue,"%s",got_Thresholds_Hash_Analytic->second.c_str());
+
+                          char myValueFlag[]="-1_-1";
+                          if(strcmp(myValueFlag,myValue)==0)
+                          {
+                            output<<"\t0.01_0.01";
+                          }
+                          else
+                          {
+                            output<<"\t"<<got_Thresholds_Hash_Analytic->second;
+                          }
+
+                        }
                     }
 
                     //max A
@@ -2777,7 +2979,8 @@ void generateFinalOutput_default(float C_value_float,char *panelDesign,std::unor
                     }
                     char value[50];
                     memset(value,0,50);
-                    sprintf(value,"%.4f_%.4f",C_value_float,C_value_float);
+                    //sprintf(value,"%.4f_%.4f",C_value_float,C_value_float);
+                    sprintf(value,"0.01_0.01");
                     output<<"\t"<<value<<"\t"<<value<<"\t"<<value<<"\t"<<value<<"\t-\t-\t-\t-"<<std::endl;
                 }
             }
