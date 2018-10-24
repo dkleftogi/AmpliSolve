@@ -915,50 +915,92 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                    //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_C>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'C')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
+                                    Flag_Hash.clear();
 
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"A->C"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_C<<"\t"<<base_Cfw<<"\t"<<base_Cr<<"\t"<<AF_Cfw<<"\t"<<AF_Cbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'C')<<std::endl;
                                     //write the variant
@@ -1063,50 +1105,92 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                  //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_G>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'G')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"A->G"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_G<<"\t"<<base_Gfw<<"\t"<<base_Gr<<"\t"<<AF_Gfw<<"\t"<<AF_Gbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'G')<<std::endl;
@@ -1211,50 +1295,92 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                   //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_T>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'T')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"A->T"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_T<<"\t"<<base_Tfw<<"\t"<<base_Tr<<"\t"<<AF_Tfw<<"\t"<<AF_Tbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'T')<<std::endl;
@@ -1366,50 +1492,94 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                  //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_A>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'A')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                       vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"C->A"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_A<<"\t"<<base_Afw<<"\t"<<base_Ar<<"\t"<<AF_Afw<<"\t"<<AF_Abw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'A')<<std::endl;
@@ -1514,50 +1684,94 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                  //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_G>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'G')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"C->G"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_G<<"\t"<<base_Gfw<<"\t"<<base_Gr<<"\t"<<AF_Gfw<<"\t"<<AF_Gbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'G')<<std::endl;
@@ -1663,50 +1877,96 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                  //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_T>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'T')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                   vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+
+
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"C->T"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_T<<"\t"<<base_Tfw<<"\t"<<base_Tr<<"\t"<<AF_Tfw<<"\t"<<AF_Tbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'T')<<std::endl;
@@ -1817,50 +2077,96 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                  //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_A>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'A')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                   vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+
+
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"G->A"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_A<<"\t"<<base_Afw<<"\t"<<base_Ar<<"\t"<<AF_Afw<<"\t"<<AF_Abw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'A')<<std::endl;
@@ -1966,48 +2272,96 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                  //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_C>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'C')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                                  }
-                                                  else
-                                                  {
-                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+
+
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"G->C"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_C<<"\t"<<base_Cfw<<"\t"<<base_Cr<<"\t"<<AF_Cfw<<"\t"<<AF_Cbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'C')<<std::endl;
@@ -2113,50 +2467,96 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                  //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_T>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'T')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+
+
                                     }
+                                    Flag_Hash.clear();
 
 
                                     //write the variant
@@ -2269,50 +2669,97 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+
+                                                                  //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_A>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'A')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                     vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+
+
                                     }
+                                    Flag_Hash.clear();
 
 
 
@@ -2419,50 +2866,96 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+
+                                                                   //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_C>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'C')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                    vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                           vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+
+
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"T->C"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_C<<"\t"<<base_Cfw<<"\t"<<base_Cr<<"\t"<<AF_Cfw<<"\t"<<AF_Cbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'C')<<std::endl;
@@ -2568,50 +3061,96 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     memset(cat_dup_fisher,0,50);
                                     sprintf(cat_dup_fisher,"%s_%s",Flag_Dup,Flag_Fisher);
                                     max_germ=std::atof(MaxGermlineFlag);
-                                    if(strcmp(cat_dup_fisher,"NO_NO")==0)
+                                    
+                                                                   //here right the new block of code that outputs all flags in the VCF
+                                    char AB[50];
+                                    char C[50];
+                                    char D[50];
+                                    char E[50];
+                                    char F[50];
+                                    memset(AB,0,50);
+                                    memset(C,0,50);
+                                    memset(D,0,50);
+                                    memset(E,0,50);
+                                    memset(F,0,50);
+                                    sprintf(AB,"");
+                                    sprintf(C,"");
+                                    sprintf(D,"");
+                                    sprintf(E,"");
+                                    sprintf(F,"");
+                                    std::unordered_map<std::string,std::string> Flag_Hash;
+                                    std::unordered_map<std::string,std::string>::iterator got_Flag_Hash;
+                                    int OK=0;
+                                    if(strcmp(cat_dup_fisher,"YES_NO")==0)
                                     {
-                                        if(strcmp(Flag_Tier,"HighQual")==0)
-                                        {
-                                            if(AF_G>=max_germ)
-                                            {
-                                                if(homopolymerTest(down,up,'G')==1)
-                                                {
-                                                  vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"HomoPolymerRegion"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                                }
-                                                else
-                                                {
-
-                                                  if(Q_fw>=20 && Q_bw>=20)
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-
-                                                  }
-                                                  else
-                                                  {
-                                                      vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowQscore"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-
-                                                  }
-
-                                                }
-                                            }
-                                            else
-                                            {
-                                                 vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PositionWithHighNoise"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"LowSupportingReads"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
-                                        }
+                                        sprintf(AB,"AmpliconEdge");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    else if(strcmp(cat_dup_fisher,"YES_NO")==0)
+                                    if(strcmp(cat_dup_fisher,"YES_YES")==0)
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"AmpliconEdge"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        sprintf(AB,"AmpliconEdge;StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    if(strcmp(cat_dup_fisher,"NO_YES")==0)
+                                    {
+                                        sprintf(AB,"StrandBias");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
+                                    }
+                                    
+                                    if( homopolymerTest(down,up,'C')==1 )
+                                    {
+                                        sprintf(F,"HomoPolymerRegion");
+                                        OK=1;
+                                    }
+                                    if(Q_fw<20 || Q_bw<20)
+                                    {
+                                        sprintf(D,"LowQscore");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
+                                    }
+                                    if(strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(E,"LowSupportingReads");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(E,E));
+                                    }
+                                    //generate the combined flag
+                                    std::string combinedFlag;
+                                    if(OK==0)
+                                    {
+                                        //this is a PASS
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+
+
                                     }
                                     else
                                     {
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"StrandBias"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        //this is not a PASS
+                                        int myFirst=0;
+                                        for(std::unordered_map<std::string,std::string>::iterator it=Flag_Hash.begin(); it!=Flag_Hash.end();++it)
+                                        {
+                                           
+                                            if(myFirst==0)
+                                            {
+                                                combinedFlag=it->first;
+                                            }
+                                            else
+                                            {
+                                                combinedFlag=combinedFlag+";"+it->first;
+                                            }
+                                            myFirst=myFirst+1;
+
+                                        }
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        //std::cout<<combinedFlag<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+
+
                                     }
+                                    Flag_Hash.clear();
 
                                     //write the variant
                                     output<<it->second<<"\t"<<chrom<<"\t"<<position<<"\t"<<"T->G"<<"\t"<<RD<<"\t"<<FW<<"\t"<<BW<<"\t"<<AF_G<<"\t"<<base_Gfw<<"\t"<<base_Gr<<"\t"<<AF_Gfw<<"\t"<<AF_Gbw<<"\t"<<Flag_Dup<<"_"<<Flag_Fisher<<"\t"<<p<<"\t"<<std::setprecision(4)<<Q_fw<<"\t"<<std::setprecision(4)<<Q_bw<<"\t"<<Flag_Tier<<"\t"<<GermlineFlag<<"\t"<<MaxGermlineFlag<<"\t"<<down<<"\t"<<up<<"\t"<<homopolymerTest(down,up,'G')<<std::endl;
