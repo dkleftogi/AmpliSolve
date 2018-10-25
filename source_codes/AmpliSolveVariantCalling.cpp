@@ -967,7 +967,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -1163,7 +1163,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -1359,7 +1359,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -1562,7 +1562,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -1760,7 +1760,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -1959,7 +1959,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -2165,7 +2165,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -2366,7 +2366,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -2567,7 +2567,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -2776,7 +2776,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -2978,7 +2978,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
@@ -3179,7 +3179,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
-                                        sprintf(D,"LowQscore");
+                                        sprintf(D,"LowQ");
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(D,D));
                                     }
