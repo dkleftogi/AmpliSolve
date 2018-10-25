@@ -630,7 +630,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
         // convert now to string form
         char* dt = ctime(&now);
         vcf_output.open(vcf_file);
-        vcf_output<<"##fileformat=VCFv4.0\n##fileDate="<<dt<<"##source=AmpliSolveVariantCalling\n##reference=Not_Specified_here\n##phasing=Not_Specified_here\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##INFO=<ID=RD,Number=1,Type=Integer,Description='Total Read Depth'>\n##SAMPLE=<ID=NORMAL,SampleName=YYYYYYYYYYYYYYY>\n##SAMPLE=<ID=TUMOR,SampleName=YYYYYYYYYYYYYYYY>\n##INFO=<ID=AF,Number=.,Type=Float,Description='Allele Frequency'>\n##INFO=<ID=SR,Number=1,Type=String,Description='Supporting Reads'>\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO"<<std::endl;
+        vcf_output<<"##fileformat=VCF-like\n##fileDate="<<dt<<"##source=AmpliSolveVariantCalling\n##reference=Not_Specified_here\n##phasing=Not_Specified_here\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##FILTER=<ID=XXXXXXXXX,Description='XXXXXXXXX'>\n##INFO=<ID=RD,Number=1,Type=Integer,Description='Total Read Depth'>\n##SAMPLE=<ID=Not_Specified_here,SampleName="<<it->second<<">\n##INFO=<ID=AF,Number=.,Type=Float,Description='Allele Frequency'>\n##INFO=<ID=SR,Number=1,Type=String,Description='Supporting Reads'>\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO"<<std::endl;
 
         char filename_ID[300];
         char patient_ID[50];
@@ -953,11 +953,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
+                                    if(AF_C<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
                                     if( homopolymerTest(down,up,'C')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -976,7 +982,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
                                     else
                                     {
@@ -998,7 +1004,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"A"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
                                     }
                                     Flag_Hash.clear();
 
@@ -1143,11 +1149,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_G<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'G')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -1166,7 +1178,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
                                     else
                                     {
@@ -1188,7 +1200,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"A"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
                                     }
                                     Flag_Hash.clear();
 
@@ -1333,11 +1345,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_T<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'T')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -1356,7 +1374,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
                                     else
                                     {
@@ -1378,7 +1396,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"A"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
                                     }
                                     Flag_Hash.clear();
 
@@ -1530,11 +1548,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_A<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'A')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -1553,7 +1577,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
                                     }
                                     else
@@ -1576,7 +1600,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"C"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
                                     }
                                     Flag_Hash.clear();
@@ -1722,11 +1746,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_G<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'G')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -1745,7 +1775,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"C"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
                                     }
                                     else
@@ -1915,11 +1945,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_T<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'T')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -1938,7 +1974,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
 
                                     }
@@ -1962,7 +1998,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"C"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
 
                                     }
@@ -2115,11 +2151,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_A<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'A')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -2138,7 +2180,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
 
                                     }
@@ -2162,7 +2204,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"G"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
 
                                     }
@@ -2310,11 +2352,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
+                                    if(AF_C<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
                                     if( homopolymerTest(down,up,'C')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -2333,7 +2381,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
 
 
                                     }
@@ -2357,7 +2405,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"G"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
 
 
                                     }
@@ -2505,11 +2553,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_T<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'T')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -2528,7 +2582,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
 
                                     }
@@ -2552,7 +2606,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"G"<<"\t"<<"T"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_T<<";"<<RD<<";"<<base_Tfw+base_Tr<<std::endl;
 
 
                                     }
@@ -2708,11 +2762,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_A<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'A')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -2731,7 +2791,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
 
                                     }
@@ -2755,7 +2815,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"T"<<"\t"<<"A"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_A<<";"<<RD<<";"<<base_Afw+base_Ar<<std::endl;
 
 
                                     }
@@ -2904,11 +2964,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
+                                    if(AF_C<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
                                     if( homopolymerTest(down,up,'C')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -2927,7 +2993,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
 
 
                                     }
@@ -2951,7 +3017,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"T"<<"\t"<<"C"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_C<<";"<<RD<<";"<<base_Cfw+base_Cr<<std::endl;
 
 
                                     }
@@ -3099,11 +3165,17 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         OK=1;
                                         Flag_Hash.insert(std::make_pair<std::string,std::string>(AB,AB));
                                     }
-                                    
-                                    if( homopolymerTest(down,up,'C')==1 )
+                                    if(AF_G<max_germ && strcmp(cat_dup_fisher,"NO_NO")==0 && strcmp(Flag_Tier,"HighQual")!=0)
+                                    {
+                                        sprintf(C,"PositionWithHighNoise");
+                                        OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(C,C));
+                                    }
+                                    if( homopolymerTest(down,up,'G')==1 )
                                     {
                                         sprintf(F,"HomoPolymerRegion");
                                         OK=1;
+                                        Flag_Hash.insert(std::make_pair<std::string,std::string>(F,F));
                                     }
                                     if(Q_fw<20 || Q_bw<20)
                                     {
@@ -3122,7 +3194,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                     if(OK==0)
                                     {
                                         //this is a PASS
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<"PASS"<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
 
                                     }
@@ -3146,7 +3218,7 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                         }
                                         //std::cout<<combinedFlag<<std::endl;
                                         //std::cout<<combinedFlag<<std::endl;
-                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"-"<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
+                                        vcf_output<<chrom<<"\t"<<position<<"\t"<<"."<<"\t"<<"T"<<"\t"<<"G"<<"\t"<<Q<<"\t"<<combinedFlag<<"\t"<<AF_G<<";"<<RD<<";"<<base_Gfw+base_Gr<<std::endl;
 
 
                                     }
