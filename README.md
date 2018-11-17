@@ -68,9 +68,11 @@ PATH=$PATH:/write/your/dir/to/AmpliSolve/source_codes
 
 ## Licence
 
-This project is licenced under the MIT Licence. 
+This project is licenced under the GNU GPLv3 Licence.
 
-You may not use this file except in compliance with the License. You may obtain a copy of the License at https://opensource.org/licenses/MIT
+Copyright (C) 2018 The Institute of Cancer Research (ICR) -- Dimitrios Kleftogiannis
+
+You may not use this file except in compliance with the License. A copy of the licence is availle with the source codes.
 
 ## Contact
 
