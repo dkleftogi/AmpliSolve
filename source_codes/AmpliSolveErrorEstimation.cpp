@@ -11,7 +11,7 @@ BEGIN COPYRIGHT NOTICE
       GNU GPLv3 Licence; 
       You may not use this file except in compliance with the License. 
 
-      Copyright (C) 2018 The Institute of Cancer Research (ICR) -- Dimitrios Kleftogiannis
+      Copyright (C) 2019 The Institute of Cancer Research (ICR) -- Dimitrios Kleftogiannis
       This Program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
       Additional permissions under GNU GPL version 3 section 7:
       This Program is distributed as a service to the research community and is experimental in nature and may have hazardous properties.  The Program is distributed WITHOUT ANY WARRANTY, express or implied.  In particular all warranties as to SATISFACTORY QUALITY or FITNESS FOR A PARTICULAR PURPOSE are excluded. See the GNU General Public License for more details.
