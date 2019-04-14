@@ -61,7 +61,7 @@ Once the normal input data are ready, we need first to estimate the error levels
 Type:
 
 ```
-./AmpliSolveErrorEstimation panel_design=/your/panel/design/file reference_genome=/your/reference/genome germline_dir=/your/dir/with/germline/read/count/files C_value=/the/error/rescaling/factor output_dir=/dir/to/store/the/intermediate/results
+./AmpliSolveErrorEstimation panel_design=/your/panel/design/file reference_genome=/your/reference/genome germline_dir=/your/dir/with/germline/read/count/files C_value=/the/error/rescaling/factor coverage_cutoff=/minimum/germline/coverage/required/for/error/estimation default_error=/platform/specific/error/level/if/normal/not/available output_dir=/dir/to/store/the/intermediate/results
 
 ```
 where
@@ -78,12 +78,16 @@ germline_dir=NORMAL_ASEQ_DIR
 
 4. C_value is the normalization factor described in the manuscript. For ctDNA screening we recommend the value 0.002,but this depends strongly on the detection limit we want to achieve.
 
-5. output_dir is a DIR to store some intermediate results
+5. coverage_cutoff is the minimum level of coverage (FW and BW) per position required for error estimation. If individual positions have less coverage are excluded from error estimation
+
+6. default_error is the sequencing platform default error. This parameter is used only when germline_dir==not_available in order to assign default error levels for all positions. If there are germline files available, this parameter is simply skipped.
+
+7. output_dir is a DIR to store some intermediate results
 
 #### One complete execution example looks as follows:
 
 ```
-./AmpliSolveErrorEstimation panel_design=AmpliSeq_30genes_Designed-1.bed reference_genome=/Users/Reference_genome/hg19_chr.fa germline_dir=NORMAL_ASEQ_DIR C_value=0.002 output_dir=FirstExecution
+./AmpliSolveErrorEstimation panel_design=AmpliSeq_30genes_Designed-1.bed reference_genome=/Users/Reference_genome/hg19_chr.fa coverage_cutoff=150 default_error=0.012 germline_dir=NORMAL_ASEQ_DIR C_value=0.002 output_dir=FirstExecution
 ```
 
 Execution of AmpliSolveErrorEstimation will produce a flat file that contains the error levels per position in the panel design

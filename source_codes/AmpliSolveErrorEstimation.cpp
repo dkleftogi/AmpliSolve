@@ -58,8 +58,15 @@ INPUT ARGUMENTS
     4. C value               : provide the C value, which is the normalization factor described in the manuscript. For ctDNA samples
                                we reccomend C=0.002 or C=0.001, but for solid tumour samples any value above 0.01 gives sufficient FDR
 
+    5. coverage cutoff       : provide the minimum coverage in germline required to consider the position for error estimation. 
+                               Individual positions with less coverage than this cutoff are skipped.
 
-    5. Output dir            : directory for storing the intermediate results of this execution
+    6. platform error        : provide the default error level of the sequencing platform, if known. 
+                               This user-defined value is used only if germline count dir is not provided and "not_available" argument is passed in germline count dir argument.
+                               Otherwise, the program ignores this platform error and computes position-specific error levels using normal samples.
+
+    
+    7. Output dir            : directory for storing the intermediate results of this execution
 
 
 DEPENDENCIES
@@ -140,6 +147,7 @@ COMPILATION
 #include <chrono>
 #include <algorithm>
 #include <random>
+#include <ctype.h>
 
 //color the output
 #define ANSI_COLOR_RESET   "\x1b[0m"
@@ -170,7 +178,7 @@ void storeReference(char *reference_bases_name,std::unordered_map<std::string,st
 //store duplicate positions
 void storeDuplicates(char *amplicon_positions,std::unordered_map<std::string,std::string> &Hash);
 //store germline statistics for threshold estimation
-void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_Hash, std::unordered_multimap<std::string,std::string> &Value_Hash_Thres,std::unordered_map<std::string,double> &Germline_M_Hash);
+void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_Hash, std::unordered_multimap<std::string,std::string> &Value_Hash_Thres,std::unordered_map<std::string,double> &Germline_M_Hash, int coverageCutoff);
 //run the computeCounts program and generate read counts for all gernline files
 //slow execution this is by-passed in the current version
 void produceReadCounts(char *input_vcf, char *input_threads,char *input_mbq,char *input_mrq, char *input_mdc, char *output_dir,std::unordered_map<std::string,std::string> &Hash);
@@ -179,9 +187,9 @@ void generateCountList(char *dir_path,char *list_name);
 //store the list of read count files
 void storeCountList(char *list_name, char *COUNT_DIR,std::unordered_map<std::string,std::string> &Hash);
 //estimate the noise levels and output the results in flat files
-void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::string> &Position_Hash,std::unordered_multimap<std::string,std::string> &Value_Hash,std::unordered_map<std::string,std::string> &Thresholds,std::unordered_map<std::string,std::string> &CountHash,std::unordered_map<std::string,std::string> &RatioHash);
+void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::string> &Position_Hash,std::unordered_multimap<std::string,std::string> &Value_Hash,std::unordered_map<std::string,std::string> &Thresholds,std::unordered_map<std::string,std::string> &CountHash,std::unordered_map<std::string,std::string> &RatioHash,int coverageCutoff);
 void generateFinalOutput(float C_value_float,char *panelDesign,std::unordered_map<std::string,std::string> &Reference_Hash,std::unordered_map<std::string,std::string> &Duplicate_Hash,std::unordered_map<std::string,std::string> &Thresholds,std::unordered_map<std::string,double> &Germline_M_Hash,char *output_dir,std::unordered_map<std::string,std::string> &CountHash,std::unordered_map<std::string,std::string> &RatioHash);
-void generateFinalOutput_default(float C_value_float,char *panelDesign,std::unordered_map<std::string,std::string> &Reference_Hash,std::unordered_map<std::string,std::string> &Duplicate_Hash,char *output_dir);
+void generateFinalOutput_default(float C_value_float,char *panelDesign,std::unordered_map<std::string,std::string> &Reference_Hash,std::unordered_map<std::string,std::string> &Duplicate_Hash,char *output_dir, float defaultError);
 //safe way of running commands
 void myExec(char *command);
 //generate folder
@@ -243,13 +251,19 @@ int main(int argc, char **argv)
         user_germline_dir=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
         
         char *user_C_value;
-        user_C_value=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH)); 
+        user_C_value=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
+
+        char *user_coverage_cutoff;
+        user_coverage_cutoff=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
+
+        char *user_default_error;
+        user_default_error=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
 
         char *user_output_dir;
         user_output_dir=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
 
         //this version contains two extra parameters for experimentation purposes
-        if(argc!=6)
+        if(argc!=8)
         {
         std::cout<<"************************************************************************************************************************************"<<std::endl;
         std::cout<<ANSI_COLOR_RED<<"                                        Your input arguments are not correct !"<<ANSI_COLOR_RESET<<std::endl;
@@ -273,6 +287,12 @@ int main(int argc, char **argv)
             char *C_value;
             C_value=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH)); 
 
+            char *coverage_cutoff;
+            coverage_cutoff=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH)); 
+
+            char *default_error;
+            default_error=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH)); 
+
             char *output_dir;
             output_dir=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
     
@@ -293,17 +313,30 @@ int main(int argc, char **argv)
             memset(C_value,0,MINIMUM_READ_LENGTH);
             sscanf(user_C_value,"C_value=%s",C_value);
 
-            strcpy(user_output_dir,argv[5]);
+            strcpy(user_coverage_cutoff,argv[5]);
+            memset(coverage_cutoff,0,MINIMUM_READ_LENGTH);
+            sscanf(user_coverage_cutoff,"coverage_cutoff=%s",coverage_cutoff);
+
+            strcpy(user_default_error,argv[6]);
+            memset(default_error,0,MINIMUM_READ_LENGTH);
+            sscanf(user_default_error,"default_error=%s",default_error);
+
+            strcpy(user_output_dir,argv[7]);
             memset(output_dir,0,MINIMUM_READ_LENGTH);
             sscanf(user_output_dir,"output_dir=%s",output_dir);
 
             //convert the original values from string to numbers
             float C_value_float=std::atof(C_value);
 
+            //convert the original coverage cutoff from string to number
+            int coverage_cutoff_int=std::atoi(coverage_cutoff);
+
             //flag the germline dir value
             char flag_germline_dir[]="not_available";
             //return 1 if germlines are available otherwise execute with the default errors
             int no_germlines=-1;
+
+            float default_error_float=0.01;
 
 
             std::cout<<"************************************************************************************************************************************\n"<<std::endl;
@@ -316,7 +349,19 @@ int main(int argc, char **argv)
             if(strcmp(germline_dir,flag_germline_dir)==0)
             {
                 no_germlines=-1;
-                std::cout<<"\t3. Germline count dir                             : "<<ANSI_COLOR_RED<<"NO germline count files available"<<ANSI_COLOR_RESET<<". Estimation of error is based on default setting (Error=C_value)"<<std::endl;
+                default_error_float=std::atof(default_error);
+                if(default_error_float>0)
+                {
+                  std::cout<<"\t3. Germline count dir                             : "<<ANSI_COLOR_RED<<"NO germline count files available"<<ANSI_COLOR_RESET<<". Estimation of error is based on platform-specific error level given by user equal to " <<default_error_float<<std::endl;
+
+                }
+                else
+                {
+                  default_error_float=0.01;
+                  std::cout<<"\t3. Germline count dir                             : "<<ANSI_COLOR_RED<<"NO germline count files available"<<ANSI_COLOR_RESET<<". User gave wrong platform-specific error level and the estimation will be based on Error=" <<default_error_float<<std::endl;
+
+                }
+
             }
             else
             {
@@ -335,7 +380,18 @@ int main(int argc, char **argv)
                  std::cout<<"\t4. C value                                        : "<<ANSI_COLOR_GREEN<<C_value_float<<ANSI_COLOR_RESET<<std::endl;
             }
 
-            std::cout<<"\t5. Output dir                                     : "<<ANSI_COLOR_GREEN<<output_dir<<ANSI_COLOR_RESET<<std::endl;
+            if(coverage_cutoff_int<=0)
+            {
+              //this is the default value of coverage for error estimation
+                coverage_cutoff_int=100;
+                std::cout<<"\t5. Coverage cutoff                                  : "<<ANSI_COLOR_RED<<"User gave: "<<coverage_cutoff<<ANSI_COLOR_RESET<<". The value is converted 100"<<std::endl;
+            }
+            else 
+            {
+                 std::cout<<"\t5. Coverage cutoff                                : "<<ANSI_COLOR_GREEN<<coverage_cutoff_int<<ANSI_COLOR_RESET<<std::endl;
+            }
+
+            std::cout<<"\t6. Output dir                                     : "<<ANSI_COLOR_GREEN<<output_dir<<ANSI_COLOR_RESET<<std::endl;
 
             //at this point we have all input arguments and we can proceed further
 
@@ -390,10 +446,10 @@ int main(int argc, char **argv)
                     
                     //store the germline statistics you need for estimating thresholds
                     std::cout<<"Running function storeGermlineStatistics:"<<std::endl;
-                    storeGermlineStatistics(GermlineCountFileList_Hash,GermlineValues_Hash_forThresholds,Germline_Max_Hash);
+                    storeGermlineStatistics(GermlineCountFileList_Hash,GermlineValues_Hash_forThresholds,Germline_Max_Hash,coverage_cutoff_int);
                     //compute thresholds
                     std::cout<<"Running function estimateThresholds: ";
-                    estimateThresholds(C_value_float,ReferenceBase_Hash,GermlineValues_Hash_forThresholds,Thresholds_Hash_Analytic,Count_Hash,Ratio_Hash);
+                    estimateThresholds(C_value_float,ReferenceBase_Hash,GermlineValues_Hash_forThresholds,Thresholds_Hash_Analytic,Count_Hash,Ratio_Hash,coverage_cutoff_int);
                     //generate and write the output file
                     generateFinalOutput(C_value_float,panel_design,ReferenceBase_Hash,DuplicatePosition_Hash,Thresholds_Hash_Analytic,Germline_Max_Hash,output_dir,Count_Hash,Ratio_Hash);
                     
@@ -442,7 +498,7 @@ int main(int argc, char **argv)
                 std::cout<<"Running function storeDuplicates: ";
                 storeDuplicates(duplicate_bases,DuplicatePosition_Hash);
 
-                generateFinalOutput_default(C_value_float,panel_design,ReferenceBase_Hash,DuplicatePosition_Hash,output_dir);
+                generateFinalOutput_default(C_value_float,panel_design,ReferenceBase_Hash,DuplicatePosition_Hash,output_dir,default_error_float);
                 char output_name1[MINIMUM_READ_LENGTH];
                 memset(output_name1,0,MINIMUM_READ_LENGTH);
                 sprintf(output_name1,"%s/positionSpecificNoise_default.txt",output_dir);
@@ -467,12 +523,13 @@ int main(int argc, char **argv)
 void printUsage()
 {
   std::cout<<"Please type the following: "<<std::endl;
-    std::cout<<"\n./AmpliSolveErrorEstimation"<<ANSI_COLOR_GREEN<<" panel_design="<<ANSI_COLOR_RESET<<"/your/panel/design/file"<<ANSI_COLOR_GREEN<<" reference_genome="<<ANSI_COLOR_RESET<<"/your/reference/genome"<<ANSI_COLOR_GREEN<<" germline_dir="<<ANSI_COLOR_RESET<<"/your/dir/with/germline/read/count/files"<<ANSI_COLOR_GREEN<<" C_value="<<ANSI_COLOR_RESET<<"/the/error/rescaling/factor"<<ANSI_COLOR_GREEN<<" output_dir="<<ANSI_COLOR_RESET<<"/dir/to/store/the/intermediate/results"<<std::endl;
+    std::cout<<"\n./AmpliSolveErrorEstimation"<<ANSI_COLOR_GREEN<<" panel_design="<<ANSI_COLOR_RESET<<"/your/panel/design/file"<<ANSI_COLOR_GREEN<<" reference_genome="<<ANSI_COLOR_RESET<<"/your/reference/genome"<<ANSI_COLOR_GREEN<<" germline_dir="<<ANSI_COLOR_RESET<<"/your/dir/with/germline/read/count/files"<<ANSI_COLOR_GREEN<<" C_value="<<ANSI_COLOR_RESET<<"/the/error/rescaling/factor"<<ANSI_COLOR_GREEN<<" coverage_cutoff="<<ANSI_COLOR_RESET<<"/position/specific/coverage/cutoff"<<ANSI_COLOR_GREEN<<" default_error="<<ANSI_COLOR_RESET<<"/platform/specific/error/if/known"<<ANSI_COLOR_GREEN<<" output_dir="<<ANSI_COLOR_RESET<<"/dir/to/store/the/intermediate/results"<<std::endl;
     std::cout<<"\nRemember that: "<<std::endl;
     std::cout<<"If NO germline count files are available, type germline_dir=not_available ; If germline files are available must follow the ASEQ data format and all files ending with .ASEQ"<<std::endl;
+    std::cout<<"In case germline_dir=not_available, the program uses the argument default_error argument to populate the error database."<<std::endl;
     std::cout<<"\nExecution example:"<<std::endl;
-    std::cout<<"The program takes 5 input arguments, so please fill them similar to the following command:"<<std::endl;
-    std::cout<<"./AmpliSolveErrorEstimation panel_design=/Example/panel_design.bed reference_genome=/Example/hg19_chr.fa germline_dir=/Example/Germline_ASEQ_DIR C_value=0.002 output_dir=/Example_Testing"<<std::endl;
+    std::cout<<"The program takes 7 input arguments, so please fill them similar to the following command:"<<std::endl;
+    std::cout<<"./AmpliSolveErrorEstimation panel_design=Example/panel_design.bed reference_genome=Example/hg19_chr.fa germline_dir=Example/Germline_ASEQ_DIR C_value=0.002 coverage_cutoff=100 default_error=0.02 output_dir=Example_Testing"<<std::endl;
     std::cout<<"\n\tIt is important to give the arguments in this order. Otherwise the program will crach !"<<std::endl;
     std::cout<<"\nMore info about the input data format and more execution examples can be found at our web-repository"<<std::endl;
     std::cout<<"************************************************************************************************************************************"<<std::endl;
@@ -997,7 +1054,7 @@ void produceReadCounts(char *input_vcf, char *input_threads,char *input_mbq,char
 
 //parse all germline files and store VAFs from forward and reverse strand.
 //this information is used for the threshold computation
-void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_Hash, std::unordered_multimap<std::string,std::string> &Value_Hash_Thres,std::unordered_map<std::string,double> &Germline_M_Hash)
+void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_Hash, std::unordered_multimap<std::string,std::string> &Value_Hash_Thres,std::unordered_map<std::string,double> &Germline_M_Hash, int coverageCutoff)
 {    
 
     //this part of the code is used to avoid un-expected problems with chromosome naming
@@ -1191,7 +1248,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
                             if(strcmp(chrom,chrom_X)==0 || strcmp(chrom,chrom_Y)==0 || strcmp(chrom,chrom_M)==0 || strcmp(chrom,chrom_chrX)==0 || strcmp(chrom,chrom_chrY)==0 || strcmp(chrom,chrom_chrM)==0 )
                             {
                               //this setting is used for all the experiments in Ion Torrent; might change in another platform
-                                    if(AF_A<=0.05 && FW>=100 && BW>=100)
+                                    if(AF_A<=0.05 && FW>=coverageCutoff && BW>=coverageCutoff)
                                     {
                                         char key_for_max[50];
                                         memset(key_for_max,0,50);
@@ -1215,7 +1272,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
                             }
                             else
                             {
-                                    if(AF_A<=0.05 && FW>=100 && BW>=100)
+                                    if(AF_A<=0.05 && FW>=coverageCutoff && BW>=coverageCutoff)
                                     {
                                         char key_for_max[50];
                                         memset(key_for_max,0,50);
@@ -1249,7 +1306,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
                             //now store the extra germline statistics we need....
                             if(strcmp(chrom,chrom_X)==0 || strcmp(chrom,chrom_Y)==0 || strcmp(chrom,chrom_M)==0 || strcmp(chrom,chrom_chrX)==0 || strcmp(chrom,chrom_chrY)==0 || strcmp(chrom,chrom_chrM)==0)
                             {
-                                    if(AF_C<=0.05 && FW>=100 && BW>=100)
+                                    if(AF_C<=0.05 && FW>=coverageCutoff && BW>=coverageCutoff)
                                     {
                                         char key_for_max[50];
                                         memset(key_for_max,0,50);
@@ -1273,7 +1330,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
                             }
                             else
                             {
-                                    if(AF_C<=0.05 && FW>=100 && BW>=100)
+                                    if(AF_C<=0.05 && FW>=coverageCutoff && BW>=coverageCutoff)
                                     {
                                         char key_for_max[50];
                                         memset(key_for_max,0,50);
@@ -1305,7 +1362,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
                             //now store the extra germline statistics we need....
                             if(strcmp(chrom,chrom_X)==0 || strcmp(chrom,chrom_Y)==0 || strcmp(chrom,chrom_M)==0 || strcmp(chrom,chrom_chrX)==0 || strcmp(chrom,chrom_chrY)==0 || strcmp(chrom,chrom_chrM)==0)
                             {
-                                    if(AF_G<=0.05 && FW>=100 && BW>=100)
+                                    if(AF_G<=0.05 && FW>=coverageCutoff && BW>=coverageCutoff)
                                     {
                                         char key_for_max[50];
                                         memset(key_for_max,0,50);
@@ -1329,7 +1386,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
                             }
                             else
                             {
-                                    if(AF_G<=0.05 && FW>=100 && BW>=100)
+                                    if(AF_G<=0.05 && FW>=coverageCutoff && BW>=coverageCutoff)
                                     {
                                         char key_for_max[50];
                                         memset(key_for_max,0,50);
@@ -1362,7 +1419,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
                             //now store the extra germline statistics we need....
                             if(strcmp(chrom,chrom_X)==0 || strcmp(chrom,chrom_Y)==0 || strcmp(chrom,chrom_M)==0 || strcmp(chrom,chrom_chrX)==0 || strcmp(chrom,chrom_chrY)==0 || strcmp(chrom,chrom_chrM)==0)
                             {
-                                    if(AF_T<=0.05 && FW>=100 && BW>=100)
+                                    if(AF_T<=0.05 && FW>=coverageCutoff && BW>=coverageCutoff)
                                     {
                                         char key_for_max[50];
                                         memset(key_for_max,0,50);
@@ -1386,7 +1443,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
                             }
                             else
                             {
-                                    if(AF_T<=0.05 && FW>=100 && BW>=100)
+                                    if(AF_T<=0.05 && FW>=coverageCutoff && BW>=coverageCutoff)
                                     {
                                         char key_for_max[50];
                                         memset(key_for_max,0,50);
@@ -1424,7 +1481,7 @@ void storeGermlineStatistics(std::unordered_map<std::string,std::string> &FILE_H
 }
 
 //function that computes thresholds given germline statistics
-void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::string> &Position_Hash,std::unordered_multimap<std::string,std::string> &Value_Hash,std::unordered_map<std::string,std::string> &Thresholds,std::unordered_map<std::string,std::string> &CountHash,std::unordered_map<std::string,std::string> &RatioHash)
+void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::string> &Position_Hash,std::unordered_multimap<std::string,std::string> &Value_Hash,std::unordered_map<std::string,std::string> &Thresholds,std::unordered_map<std::string,std::string> &CountHash,std::unordered_map<std::string,std::string> &RatioHash, int coverageCutoff)
 {
 
     char chrom_chrX[]="chrX";
@@ -1535,7 +1592,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                double AF_limit=0.05;
                double AF_fw=float(base_fw)/float(RD_fw);
                double AF_bw=float(base_bw)/float(RD_bw);
-               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=100 && RD_bw>=100)
+               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=coverageCutoff && RD_bw>=coverageCutoff)
                {
                 sum_fw_nt=sum_fw_nt + base_fw + (float(RD_fw)*float(norm_factor));
                 sum_fw_RD=sum_fw_RD + RD_fw;
@@ -1555,7 +1612,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                double AF_limit=0.05;
                double AF_fw=float(base_fw)/float(RD_fw);
                double AF_bw=float(base_bw)/float(RD_bw);
-               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=100 && RD_bw>=100)
+               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=coverageCutoff && RD_bw>=coverageCutoff)
                {
                     sum_fw_nt=sum_fw_nt + base_fw + (float(RD_fw)*float(norm_factor));
                     sum_fw_RD=sum_fw_RD + RD_fw;
@@ -1784,7 +1841,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                double AF_limit=0.05;
                double AF_fw=float(base_fw)/float(RD_fw);
                double AF_bw=float(base_bw)/float(RD_bw);
-               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=100 && RD_bw>=100)
+               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=coverageCutoff && RD_bw>=coverageCutoff)
                {
                 sum_fw_nt=sum_fw_nt + base_fw + (float(RD_fw)*float(norm_factor));
                 sum_fw_RD=sum_fw_RD + RD_fw;
@@ -1804,7 +1861,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                double AF_limit=0.05;
                double AF_fw=float(base_fw)/float(RD_fw);
                double AF_bw=float(base_bw)/float(RD_bw);
-               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=100 && RD_bw>=100)
+               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=coverageCutoff && RD_bw>=coverageCutoff)
                {
                     sum_fw_nt=sum_fw_nt + base_fw + (float(RD_fw)*float(norm_factor));
                     sum_fw_RD=sum_fw_RD + RD_fw;
@@ -2031,7 +2088,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                double AF_limit=0.05;
                double AF_fw=float(base_fw)/float(RD_fw);
                double AF_bw=float(base_bw)/float(RD_bw);
-               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=100 && RD_bw>=100)
+               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=coverageCutoff && RD_bw>=coverageCutoff)
                {
                 sum_fw_nt=sum_fw_nt + base_fw + (float(RD_fw)*float(norm_factor));
                 sum_fw_RD=sum_fw_RD + RD_fw;
@@ -2051,7 +2108,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                double AF_limit=0.05;
                double AF_fw=float(base_fw)/float(RD_fw);
                double AF_bw=float(base_bw)/float(RD_bw);
-               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=100 && RD_bw>=100)
+               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=coverageCutoff && RD_bw>=coverageCutoff)
                {
                     sum_fw_nt=sum_fw_nt + base_fw + (float(RD_fw)*float(norm_factor));
                     sum_fw_RD=sum_fw_RD + RD_fw;
@@ -2278,7 +2335,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                double AF_limit=0.05;
                double AF_fw=float(base_fw)/float(RD_fw);
                double AF_bw=float(base_bw)/float(RD_bw);
-               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=100 && RD_bw>=100)
+               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=coverageCutoff && RD_bw>=coverageCutoff)
                {
                 sum_fw_nt=sum_fw_nt + base_fw + (float(RD_fw)*float(norm_factor));
                 sum_fw_RD=sum_fw_RD + RD_fw;
@@ -2298,7 +2355,7 @@ void estimateThresholds(float norm_factor,std::unordered_map<std::string,std::st
                double AF_limit=0.05;
                double AF_fw=float(base_fw)/float(RD_fw);
                double AF_bw=float(base_bw)/float(RD_bw);
-               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=100 && RD_bw>=100)
+               if(AF_fw<=AF_limit && AF_bw<=AF_limit && RD_fw>=coverageCutoff && RD_bw>=coverageCutoff)
                {
                     sum_fw_nt=sum_fw_nt + base_fw + (float(RD_fw)*float(norm_factor));
                     sum_fw_RD=sum_fw_RD + RD_fw;
@@ -2888,7 +2945,7 @@ void generateFinalOutput(float C_value_float,char *panelDesign,std::unordered_ma
 
 //this is a default function that assigns the same error per position
 
-void generateFinalOutput_default(float C_value_float,char *panelDesign,std::unordered_map<std::string,std::string> &Reference_Hash,std::unordered_map<std::string,std::string> &Duplicate_Hash,char *output_dir)
+void generateFinalOutput_default(float C_value_float,char *panelDesign,std::unordered_map<std::string,std::string> &Reference_Hash,std::unordered_map<std::string,std::string> &Duplicate_Hash,char *output_dir, float defaultError)
 {
 
     char lineCharArray[MINIMUM_READ_LENGTH];
@@ -2977,7 +3034,7 @@ void generateFinalOutput_default(float C_value_float,char *panelDesign,std::unor
                     char value[50];
                     memset(value,0,50);
                     //sprintf(value,"%.4f_%.4f",C_value_float,C_value_float);
-                    sprintf(value,"0.01_0.01");
+                    sprintf(value,"%.4f_%.4f",defaultError,defaultError);
                     output<<"\t"<<value<<"\t"<<value<<"\t"<<value<<"\t"<<value<<"\t-\t-\t-\t-"<<std::endl;
                 }
             }
