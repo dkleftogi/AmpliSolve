@@ -78,9 +78,9 @@ germline_dir=NORMAL_ASEQ_DIR
 
 4. C_value is the normalization factor described in the manuscript. For ctDNA screening we recommend the value 0.002,but this depends strongly on the detection limit we want to achieve.
 
-5. coverage_cutoff is the minimum level of coverage (FW and BW) per position required for error estimation. If individual positions have less coverage are excluded from error estimation
+5. coverage_cutoff is the minimum level of coverage (FW and BW) per position required for error estimation. If individual positions have less coverage are excluded from error estimation. Default value is 100 for both strands.
 
-6. default_error is the sequencing platform default error. This parameter is used only when germline_dir==not_available in order to assign default error levels for all positions. If there are germline files available, this parameter is simply skipped.
+6. default_error is the sequencing platform default error. This parameter is used ONLY when germline_dir==not_available in order to assign default error levels for all positions. If there are germline files available, this parameter is simply skipped and the program generates position-specific error levels based on normals.
 
 7. output_dir is a DIR to store some intermediate results
 
@@ -116,7 +116,7 @@ Once the tumour input data are ready, and the error levels per position, nucleot
 Type:
 
 ```
-./AmpliSolveVariantCalling errorFile=/the/file/produced/by/AmpliSolveErrorEstimation tumour_dir=/your/dir/with/tumour/read/count/files output_dir=/dir/to/store/all/output
+./AmpliSolveVariantCalling errorFile=/the/file/produced/by/AmpliSolveErrorEstimation tumour_dir=/your/dir/with/tumour/read/count/files output_dir=/dir/to/store/all/output coverage_cutoff=/coverage/per/strand/required/to/do/predictions p_value=/Fisher's/exact/test/p/value/for/strand/bias
 ```
 where
 
@@ -129,10 +129,14 @@ tumour_dir=TUMOUR_ASEQ_DIR
 ```
 3. output_dir is a DIR to store some intermediate results
 
+4. coverage_cutoff is the minimum level of coverage for FW and BW strand required to make a prediction. Positions with less coverage are not considered "callable". Default value is 100 for both strands. 
+
+5. p_value is the p value of Fisher's exact test used to identify positions with strand bias. Default value is 0.05
+
 #### One complete execution example looks as follows:
 
 ```
-./AmpliSolveVariantCalling errorFile=positionSpecificNoise_0.0020.txt tumour_dir=TUMOUR_ASEQ_DIR output_dir=VariantCalling_Testing
+./AmpliSolveVariantCalling errorFile=positionSpecificNoise_0.0020.txt tumour_dir=TUMOUR_ASEQ_DIR output_dir=VariantCalling_Testing coverage_cutoff=100 p_value=0.05
 ```
 
 Execution of AmpliSolveVariantCalling with this command will produce a flat file named VariantCalling_Testing/Summary_Variant_Info.txt that contains all the variants found for all tumour samples stored in the tumour_dir=TUMOUR_ASEQ_DIR. In the TODO list (sortly), we will enable to write the results per sample in the typical VCF format.

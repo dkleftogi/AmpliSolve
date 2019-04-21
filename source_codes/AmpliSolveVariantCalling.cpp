@@ -50,6 +50,12 @@ INPUT ARGUMENTS
     3. output dir                       : directory for storing results and other intermediate results of this execution
     
 
+    4. coverage cutoff                  : the minimum coverage per strand required to make a prediction (default 100)
+                                          Individual positions with less coverage than this cutoff per strand are not considered "callable"
+    
+    5. pvalue                           : the p-value of Fisher's exact test (default 0.05), to identify positions with strand bias
+
+
 DEPENDENCIES
     
     The AmpliSolveErrorEstimation program depends on the following programs:
@@ -152,7 +158,7 @@ void storeCountList(char *list_name, char *COUNT_DIR,std::unordered_map<std::str
 void generateCountList(char *dir_path,char *list_name);
 
 
-void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, std::unordered_map<std::string,std::string> &DuplicatePosition,std::unordered_map<std::string,std::string> &TumourFileList,std::unordered_map<std::string,std::string> &Thresholds,char *output_dir,char *tumourFile);
+void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, std::unordered_map<std::string,std::string> &DuplicatePosition,std::unordered_map<std::string,std::string> &TumourFileList,std::unordered_map<std::string,std::string> &Thresholds,char *output_dir,char *tumourFile, int CovCut, float myPvalue );
 
 double fisherTest(int a,int b,int c, int d);
 double kf_lgamma(double z);
@@ -200,8 +206,14 @@ int main(int argc, char **argv)
         user_tumour_dir=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
         char *user_output_dir;
         user_output_dir=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH)); 
+
+        char *user_coverage_cutoff;
+        user_coverage_cutoff=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
+
+        char *user_p_value;
+        user_p_value=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
        
-        if(argc!=4)
+        if(argc!=6)
         {
         std::cout<<"************************************************************************************************************************************"<<std::endl;
         std::cout<<ANSI_COLOR_RED<<"                                        Your input arguments are not correct !"<<ANSI_COLOR_RESET<<std::endl;
@@ -219,6 +231,13 @@ int main(int argc, char **argv)
             char *output_dir;
             output_dir=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
 
+            char *coverage_cutoff;
+            coverage_cutoff=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
+
+            char *p_value;
+            p_value=(char*)malloc(sizeof(char) * (MINIMUM_READ_LENGTH));
+
+
 
             strcpy(user_error_file,argv[1]);
             memset(error_file,0,MINIMUM_READ_LENGTH);
@@ -232,6 +251,19 @@ int main(int argc, char **argv)
             memset(output_dir,0,MINIMUM_READ_LENGTH);
             sscanf(user_output_dir,"output_dir=%s",output_dir);
 
+            strcpy(user_coverage_cutoff,argv[4]);
+            memset(coverage_cutoff,0,MINIMUM_READ_LENGTH);
+            sscanf(user_coverage_cutoff,"coverage_cutoff=%s",coverage_cutoff);
+
+            strcpy(user_p_value,argv[5]);
+            memset(p_value,0,MINIMUM_READ_LENGTH);
+            sscanf(user_p_value,"p_value=%s",p_value);
+
+            //convert the original values from string to numbers
+            float p_value_float=std::atof(p_value);
+
+            //convert the original coverage cutoff from string to number
+            int coverage_cutoff_int=std::atoi(coverage_cutoff);
             
             std::cout<<"************************************************************************************************************************************\n"<<std::endl;
             std::cout<<"                          AmpliSolve variant calling for batch execution of multiple samples\n"<<std::endl;
@@ -241,7 +273,33 @@ int main(int argc, char **argv)
             std::cout<<"\t1. Error estimation                               : "<<ANSI_COLOR_GREEN<<error_file<<ANSI_COLOR_RESET<<std::endl;
             std::cout<<"\t2. Tumour count dir                               : "<<ANSI_COLOR_GREEN<<tumour_dir<<ANSI_COLOR_RESET<<std::endl;
             std::cout<<"\t3. Output dir                                     : "<<ANSI_COLOR_GREEN<<output_dir<<ANSI_COLOR_RESET<<std::endl;
+            
+            if(coverage_cutoff_int<=0)
+            {
+              //this is the default value of coverage to find callable positions
+                coverage_cutoff_int=100;
+                std::cout<<"\t4. Coverage cutoff                                  : "<<ANSI_COLOR_RED<<"User gave: "<<coverage_cutoff<<ANSI_COLOR_RESET<<". The value is converted to default 100"<<std::endl;
+            }
+            else 
+            {
+                 std::cout<<"\t4. Coverage cutoff                                : "<<ANSI_COLOR_GREEN<<coverage_cutoff_int<<ANSI_COLOR_RESET<<std::endl;
+            }
+
+
+            if(p_value_float<=0 || p_value_float>1)
+            {
+              //this is the default pvalue
+                p_value_float=0.05;
+                std::cout<<"\t5. p-value                                         : "<<ANSI_COLOR_RED<<"User gave: "<<p_value<<ANSI_COLOR_RESET<<". The value is converted to default 0.05"<<std::endl;
+            }
+            else 
+            {
+                 std::cout<<"\t5. p-value                                        : "<<ANSI_COLOR_GREEN<<p_value_float<<ANSI_COLOR_RESET<<std::endl;
+            }
+
             std::cout<<std::endl;
+
+
                 
             char interm_results_dir[500];
             memset(interm_results_dir,0,500);
@@ -283,7 +341,7 @@ int main(int argc, char **argv)
             memset(filename_tumour,0,50);
             sprintf(filename_tumour,"%s/Summary_Variant_Info.txt",output_dir);
 
-            callVariants(ReferenceBase_Hash,DuplicatePosition_Hash,TumourFileList_Hash,Thresholds_Hash_Analytic,output_dir,filename_tumour);
+            callVariants(ReferenceBase_Hash,DuplicatePosition_Hash,TumourFileList_Hash,Thresholds_Hash_Analytic,output_dir,filename_tumour,coverage_cutoff_int,p_value_float);
 
 
             ReferenceBase_Hash.clear();
@@ -305,10 +363,10 @@ int main(int argc, char **argv)
 void printUsage()
 {
     std::cout<<"Please type the following: "<<std::endl;
-    std::cout<<"\n./AmpliSolveVariantCalling"<<ANSI_COLOR_GREEN<<" errorFile="<<ANSI_COLOR_RESET<<"/the/file/produced/by/AmpliSolveErrorEstimation"<<ANSI_COLOR_GREEN<<" tumour_dir="<<ANSI_COLOR_RESET<<"/your/dir/with/tumour/read/count/files "<<ANSI_COLOR_GREEN<<"output_dir="<<ANSI_COLOR_RESET<<"/dir/to/store/all/outputs"<<std::endl;
+    std::cout<<"\n./AmpliSolveVariantCalling"<<ANSI_COLOR_GREEN<<" errorFile="<<ANSI_COLOR_RESET<<"/the/file/produced/by/AmpliSolveErrorEstimation"<<ANSI_COLOR_GREEN<<" tumour_dir="<<ANSI_COLOR_RESET<<"/your/dir/with/tumour/read/count/files "<<ANSI_COLOR_GREEN<<"output_dir="<<ANSI_COLOR_RESET<<"/dir/to/store/all/outputs"<<ANSI_COLOR_GREEN<<" coverage_cutoff="<<ANSI_COLOR_RESET<<"/coverage/per/strand/required/to/do/predictions"<<ANSI_COLOR_GREEN<<" p_value="<<ANSI_COLOR_RESET<<"/Fisher's/exact/test/p/value/for/strand/bias"<<std::endl;
     std::cout<<"\nExecution example:"<<std::endl;
     std::cout<<"The program takes 3 input arguments, so please fill them similar to the following command:"<<std::endl;
-    std::cout<<"./AmpliSolveVariantCalling errorFile=positionSpecificNoise_0.0020.txt tumour_dir=TUMOUR_ASEQ_DIR output_dir=VariantCalling_Testing"<<std::endl;
+    std::cout<<"./AmpliSolveVariantCalling errorFile=positionSpecificNoise_0.0020.txt tumour_dir=TUMOUR_ASEQ_DIR output_dir=VariantCalling_Testing coverage_cutoff=100 p_value=0.05"<<std::endl;
     std::cout<<"\n\tIt is important to give the arguments in this order. Otherwise the program will crach !"<<std::endl;
     std::cout<<"\nMore info about the input data format and more execution examples can be found at our web-repository"<<std::endl;
     std::cout<<"************************************************************************************************************************************"<<std::endl;
@@ -572,7 +630,7 @@ void storeCountList(char *list_name, char *COUNT_DIR,std::unordered_map<std::str
 
 
 //this is the actual function that calls the variants
-void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, std::unordered_map<std::string,std::string> &DuplicatePosition,std::unordered_map<std::string,std::string> &TumourFileList,std::unordered_map<std::string,std::string> &Thresholds,char *output_dir,char *tumourFile)
+void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, std::unordered_map<std::string,std::string> &DuplicatePosition,std::unordered_map<std::string,std::string> &TumourFileList,std::unordered_map<std::string,std::string> &Thresholds,char *output_dir,char *tumourFile,int CovCut, float myPvalue)
 {
     std::cout<<"\nRunning function callVariants...."<<std::endl;
 
@@ -837,12 +895,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_fw=mutationRulesPoissonQualityScore(base_C-base_Cr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Cr,RD_reverse,AF_bw);
                                 //Q score we set...
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_C-base_Cr,base_Cr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -1035,12 +1093,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_G-base_Gr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Gr,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_G-base_Gr,base_Gr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -1231,12 +1289,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_T-base_Tr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Tr,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_T-base_Tr,base_Tr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -1434,12 +1492,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_A-base_Ar,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Ar,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_A-base_Ar,base_Ar);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -1632,12 +1690,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_G-base_Gr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Gr,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_G-base_Gr,base_Gr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -1831,12 +1889,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_T-base_Tr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Tr,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_T-base_Tr,base_Tr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -2037,12 +2095,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_A-base_Ar,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Ar,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_A-base_Ar,base_Ar);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -2238,12 +2296,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_C-base_Cr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Cr,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_C-base_Cr,base_Cr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -2439,12 +2497,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_T-base_Tr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Tr,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_T-base_Tr,base_Tr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -2647,12 +2705,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_A-base_Ar,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Ar,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_A-base_Ar,base_Ar);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -2851,12 +2909,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_C-base_Cr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Cr,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_C-base_Cr,base_Cr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }
@@ -3051,12 +3109,12 @@ void callVariants(std::unordered_map<std::string,std::string> &ReferenceBase, st
                                 Q_bw=0;
                                 Q_fw=mutationRulesPoissonQualityScore(base_G-base_Gr,RD-RD_reverse,AF_fw);
                                 Q_bw=mutationRulesPoissonQualityScore(base_Gr,RD_reverse,AF_bw);
-                                if(FW>=100 && BW>=100 && Q_fw>=5 && Q_bw>=5)
+                                if(FW>=CovCut && BW>=CovCut && Q_fw>=5 && Q_bw>=5)
                                 {
                                     //you have a variant so do the fisher test and write it
                                     p=-1;
                                     p=fisherTest(RD-RD_reverse,RD_reverse,base_G-base_Gr,base_Gr);
-                                    if(p<=0.05)
+                                    if(p<=myPvalue)
                                     {
                                         sprintf(Flag_Fisher,"YES");
                                     }

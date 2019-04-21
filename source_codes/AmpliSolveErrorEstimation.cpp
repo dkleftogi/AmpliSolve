@@ -373,7 +373,7 @@ int main(int argc, char **argv)
             {
               //this is the default C value in case the users give something non acceptable
                 C_value_float=0.002;
-                std::cout<<"\t4. C value                                         : "<<ANSI_COLOR_RED<<"User gave: "<<C_value_float<<ANSI_COLOR_RESET<<". The value is converted to 0.002"<<std::endl;
+                std::cout<<"\t4. C value                                         : "<<ANSI_COLOR_RED<<"User gave: "<<C_value<<ANSI_COLOR_RESET<<". The value is converted to 0.002"<<std::endl;
             }
             else 
             {
